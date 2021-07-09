@@ -6,9 +6,5 @@ class Room:
 		self.code = code
 		self.occupants = []
 	
-	# def get_room_code(self):
-	# 	return self.code
-
-
 	def identify(self):
-		print(self.number, self.binary, self.code)
+		print("room", self.number, ";", self.binary, ";", self.code)

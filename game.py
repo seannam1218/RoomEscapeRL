@@ -3,21 +3,21 @@ from agent import Agent
 import random
 
 class Game():
-	def __init__(self, num_agents, num_rooms, room_code_len, total_words):
+	def __init__(self, num_agents, num_rooms, room_code_len, message_len):
 		self.num_agents = num_agents
 		self.num_rooms = num_rooms
 		self.room_code_len = room_code_len
-		self.total_words = total_words
+		self.message_len = message_len
 		self.agents = self.initialize_agents()
 		self.rooms = self.initialize_rooms()
-		self.update_rooms_occupants()
+		self.rooms_update_occupants()
 
 
 	def initialize_agents(self):
 		# define agents
-		alice = Agent(name="alice", total_words=self.total_words, location=0, code_len=self.room_code_len)
-		bob = Agent("bob", total_words=self.total_words, location=0, code_len=self.room_code_len)
-		charlie = Agent("charlie", total_words=self.total_words, location=0, code_len=self.room_code_len)
+		alice = Agent(name="alice", message_len=self.message_len, location=0, code_len=self.room_code_len)
+		bob = Agent("bob", message_len=self.message_len, location=0, code_len=self.room_code_len)
+		charlie = Agent("charlie", message_len=self.message_len, location=0, code_len=self.room_code_len)
 		return [alice, bob, charlie]
 
 
@@ -31,7 +31,7 @@ class Game():
 		# create rooms
 		code_list = self.initialize_code_list()
 		for i in range(1, self.num_rooms+1):
-			room_number = str(i)
+			room_number = i
 			room_binary = [0]*(1+self.num_rooms)
 			room_binary[i] += 1
 			code = code_list[i-1]
@@ -66,15 +66,15 @@ class Game():
 
 	def initialize_game(self):
 		self.agents_observe_room_codes()
-		self.update_rooms_occupants()
+		self.rooms_update_occupants()
 
 
 	def agents_observe_room_codes(self):
 		for agent in self.agents:
-			agent.observe_room_code(self.rooms[agent.location].code)
+			agent.set_room_code(self.rooms[agent.location].code)
 
 
-	def update_rooms_occupants(self):
+	def rooms_update_occupants(self): #not optimal
 		for r in self.rooms:
 			occupants = []
 			for a in self.agents:
@@ -82,6 +82,20 @@ class Game():
 					occupants.append(a)
 			r.occupants = occupants
 			
+	
+	def proceed_turn(self):
+		for a in self.agents:
+			action = a.get_action(self.num_rooms)
+			a.apply_action(action)
+		self.agents_observe_room_codes()
+		self.rooms_update_occupants()
+		self.print_rooms()
+
+
+	def get_agent_actions(self):
+		for a in self.agents:
+			a.get_action
+
 
 	def print_game_initialization(self):
 		print("========Game is starting with following variables:========")
@@ -93,19 +107,12 @@ class Game():
 			room.identify()
 		print("enjoy!")
 
+
 	def print_rooms(self):
 		for i in range(len(self.rooms)):
 			print(str(i), ":", self.rooms[i].occupants)
 
-game = Game(num_agents=3, num_rooms=3, room_code_len=3, total_words=8)  #room number needs to be odd number
-game.print_game_initialization()
-game.print_rooms()
-
-### initialize agent states, messages, locations, and room codes (all binary numbers)
-# states: [escaped, present]
-# messages: [0,0,0,0]
-# locations: [lobby, A, B, C] - one value of one and everything else 0
-# room code: [1,1,0,0] - the code of the current room
-
-
-
+	
+	def print_agents(self):
+		for a in self.agents:
+			print(a.name, "in room", a.location, " with message", a.message)
