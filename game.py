@@ -15,9 +15,9 @@ class Game():
 
 	def initialize_agents(self):
 		# define agents
-		alice = Agent(name="alice", message_len=self.message_len, location=0, code_len=self.room_code_len)
-		bob = Agent("bob", message_len=self.message_len, location=0, code_len=self.room_code_len)
-		charlie = Agent("charlie", message_len=self.message_len, location=0, code_len=self.room_code_len)
+		alice = Agent(number=0, name="alice", message_len=self.message_len, location=0, code_len=self.room_code_len, num_agents=self.num_agents)
+		bob = Agent(number=1, name="bob", message_len=self.message_len, location=0, code_len=self.room_code_len, num_agents=self.num_agents)
+		charlie = Agent(number=2, name="charlie", message_len=self.message_len, location=0, code_len=self.room_code_len, num_agents=self.num_agents)
 		return [alice, bob, charlie]
 
 
@@ -87,6 +87,10 @@ class Game():
 		for a in self.agents:
 			action = a.get_action(self.num_rooms)
 			a.apply_action(action)
+			#identify occupants and send messages to them
+			if action["send_message"] is True:
+				for o in self.rooms[a.location].occupants:
+					o.receive_message(a, a.message)
 		self.agents_observe_room_codes()
 		self.rooms_update_occupants()
 		self.print_rooms()

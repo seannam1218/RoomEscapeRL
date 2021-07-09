@@ -3,22 +3,32 @@ import random
 
 class Agent:
 	
-	def __init__(self, name, location, message_len, code_len):
+	def __init__(self, number, name, location, message_len, code_len, num_agents):
+		self.number = number
 		self.name = name
 		self.location = location
 		self.message = [0] * message_len
 		self.room_code = [0] * code_len
-	
+		self.message_memory = []
+		for i in range(num_agents): 
+			self.message_memory.append([0] * message_len)
+		
+
 	def identify(self):
 		print(self.name, ": in room", self.location, ", message ", self.message)
+
 
 	def set_room_code(self, room_code):
 		self.room_code = room_code
 
+
 	def get_action(self, num_rooms):
+		# TODO: get actions from running the neural network
 		action = {}
-		action.update({"message" : random.randint(0, len(self.message))})
-		action.update({"send_message" : False})
+		message = [0]*len(self.message)
+		message[random.randint(0, len(self.message))-1] = 1
+		action.update({"message" : message})
+		action.update({"send_message" : random.choice([True, False])})
 		action.update({"choose_room" : random.randint(0, num_rooms)})
 		action.update({"escape" : False})
 		return action
@@ -27,7 +37,12 @@ class Agent:
 	def apply_action(self, action):
 		if action["send_message"] is True:
 			self.message = action["message"]
+			return
 		self.location = action["choose_room"]
+
+
+	def receive_message(self, sender, received_message):
+		self.message_memory[sender.number] = received_message
 
 
 	def compose_nn_input(self):
