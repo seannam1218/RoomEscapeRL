@@ -43,22 +43,13 @@ class GUI(App):
 						)
 		self.window.add_widget(self.greeting)
 
-		# # text input widget
-		# self.user = TextInput(
-		# 			multiline= False,
-		# 			padding_y= (20,20),
-		# 			size_hint= (1, 0.5)
-		# 			)
 
-		# self.window.add_widget(self.user)
+		### create a space to represent rooms and its occupants
 		self.rooms_state = GridLayout(cols=2)
 		self.window.add_widget(self.rooms_state)
 
-
-
-
 		# button widget
-		self.button_grid = GridLayout(cols=1)
+		self.room_grid = GridLayout(cols=1)
 		for i in range(self.game.num_rooms+1):
 			button = Button(
 							text= "ROOM" + str(i),
@@ -69,20 +60,18 @@ class GUI(App):
 							#remove darker overlay of background colour
 							# background_normal = ""
 							)
-			# self.button.bind(on_press=self.callback)
+			# TODO: player mode needs to have a callback function for clicking on room buttons
 			self.rooms.append(button)
-			self.button_grid.add_widget(button)
+			self.room_grid.add_widget(button)
 		
-		self.rooms_state.add_widget(self.button_grid)
+		self.rooms_state.add_widget(self.room_grid)
 
-		# label widget
-		self.greeting2 = Label(
-						text= "wow",
-						font_size= 18,
-						color= '#00FFCE'
-						)
-		self.rooms_state.add_widget(self.greeting2)
+		# self.agents_grid = GridLayout(cols=self.game.num_agents)
+		self.agents_grid_list = []
+		self.agents_grid = GridLayout(cols=self.game.num_agents)
+		self.update_data_on_ui(self.game)
 
+		self.rooms_state.add_widget(self.agents_grid)
 
 		return self.window
 
@@ -90,18 +79,24 @@ class GUI(App):
 	def proceed(self, instance):
 		print("proceeding................")
 		self.game.proceed_turn()
-		self.update_data(self.game.get_rooms_data())
+		self.update_data_on_ui(self.game.get_rooms_data())
 
 	
-	def update_data(self, data):
-		self.data = data
-		for i in range(len(self.data)):
-			room = self.data[i]
-			print(room.number)
-			agents = room.occupants
-			for j in range(len(agents)):
-				print(agents[j].name)
-				self.window.add_widget(Image(source=agents[j].image))
-
-
-
+	def update_data_on_ui(self, game):
+		# self.agents_grid.remove_widget(self.agents_grid)
+		# self.agents_grid = GridLayout(cols=self.game.num_agents)
+		self.agents_grid.clear_widgets()
+		self.agents_grid_list = []
+		for i in range(self.game.num_rooms+1):
+			for j in range(self.game.num_agents):
+				try:
+					self.agents_grid_list.append(
+						Image(source=self.game.rooms[i].occupants[j].image)
+						)
+				except:
+					blank_agent = Image(source='images/blank.png')
+					self.agents_grid_list.append(blank_agent)
+		
+		for agent in self.agents_grid_list:
+			self.agents_grid.add_widget(agent)
+		

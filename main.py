@@ -8,7 +8,7 @@ gui = GUI(game=game)
 gui.run()
 
 game.print_game_initialization()
-gui.update_data(game.get_rooms_data())
+gui.update_data_on_ui(game.get_rooms_data())
 
 
 
