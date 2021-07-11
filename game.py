@@ -29,15 +29,17 @@ class Game():
 		rooms = [lobby]
 		
 		# create rooms
-		code_list = self.initialize_code_list()
+		code_list, escape_code = self.initialize_code_list()
 		for i in range(1, self.num_rooms+1):
 			room_number = i
 			room_binary = [0]*(1+self.num_rooms)
 			room_binary[i] += 1
 			code = code_list[i-1]
 			room = Room(room_number, room_binary, code)
+			if room.code == escape_code:
+				room.set_escape_room(True)
 			rooms.append(room)
-
+		
 		return rooms
 
 
@@ -51,8 +53,9 @@ class Game():
 			code_list.append(rand_code)
 			exclude_list.append(rand_code)
 		code_list = code_list[0:-1]
+		escape_code = code_list[-1]
 		random.shuffle(code_list)
-		return code_list
+		return code_list, escape_code
 
 
 	def get_rand_code(self, exclude_list):
@@ -93,12 +96,15 @@ class Game():
 					o.receive_message(a, a.message)
 		self.agents_observe_room_codes()
 		self.rooms_update_occupants()
-		self.print_rooms()
 
 
 	def get_agent_actions(self):
 		for a in self.agents:
 			a.get_action
+
+
+	def get_rooms_data(self):
+		return self.rooms
 
 
 	def print_game_initialization(self):

@@ -12,6 +12,8 @@ class Agent:
 		self.message_memory = []
 		for i in range(num_agents): 
 			self.message_memory.append([0] * message_len)
+
+		self.image = "images/" + str(self.number) + ".png"
 		
 
 	def identify(self):
