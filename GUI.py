@@ -13,7 +13,6 @@ class GUI(App):
 	def __init__(self, game, **kwargs):
 		super(GUI, self).__init__(**kwargs)
 		self.game = game
-		self.rooms_list = []
 		self.selected_agent = None
 		self.blank_image = 'images/blank.png'
 
@@ -25,7 +24,7 @@ class GUI(App):
 		self.window.pos_hint = {"center_x": 0.5, "center_y":0.5}
 
 		# button for proceeding
-		button_proceed = Button(
+		self.button_proceed = Button(
 					text= "Next",
 					size_hint= (1,0.5),
 					bold= True,
@@ -34,8 +33,8 @@ class GUI(App):
 					#remove darker overlay of background colour
 					background_normal = ""
 					)
-		self.window.add_widget(button_proceed)
-		button_proceed.bind(on_press=self.proceed)
+		self.window.add_widget(self.button_proceed)
+		self.button_proceed.bind(on_press=self.proceed)
 
 		# memory display
 		self.memory_panel = BoxLayout(orientation='vertical')
@@ -54,10 +53,9 @@ class GUI(App):
 
 
 		### create a space to represent rooms and its occupants
-		self.rooms_list_state = GridLayout(cols=2)
-		self.window.add_widget(self.rooms_list_state)
+		self.game_window = GridLayout(cols=2)
+		self.window.add_widget(self.game_window)
 
-		# button widget
 		self.room_grid = GridLayout(cols=1)
 		for i in range(self.game.num_rooms+1):
 			button = Button(
@@ -70,16 +68,15 @@ class GUI(App):
 							# background_normal = ""
 							)
 			# TODO: player mode needs to have a callback function for clicking on room buttons
-			self.rooms_list.append(button)
 			self.room_grid.add_widget(button)
 		
-		self.rooms_list_state.add_widget(self.room_grid)
+		self.game_window.add_widget(self.room_grid)
 
-		self.agent_buttons_grid_list = []
-		self.agents_grid = GridLayout(cols=self.game.num_agents)
+		# add agents to the rooms
+		self.agents_grid = GridLayout(rows=self.game.num_rooms+1)
 		self.update_data_on_ui(self.game)
 
-		self.rooms_list_state.add_widget(self.agents_grid)
+		self.game_window.add_widget(self.agents_grid)
 
 		return self.window
 
@@ -93,30 +90,19 @@ class GUI(App):
 	
 	def update_data_on_ui(self, game):
 		self.agents_grid.clear_widgets()
-		self.agent_buttons_grid_list = []
-		for i in range(self.game.num_rooms+1):
-			agent_buttons_grid_list_row = []
-			for j in range(self.game.num_agents):
-				try:
-					agent = self.game.rooms[i].occupants[j]
-					agent_button = Button(
-							background_normal=agent.image,
-							size=(100,100)
+		for r in self.game.rooms:
+			stack = StackLayout()
+			for o in r.occupants:
+				print(o)
+				agent_button = Button(
+							background_normal=o.image,
+							size_hint_x = 0.2	#TODO: needs to be square
 							)
-					agent_button_callback = partial(self.on_click_display_memory, agent)  #allows passing argument into on_click_display_memory func
-					# agent_button_callback = lambda agent:print(agent)
-					agent_button.bind(on_press=agent_button_callback)
-					agent_buttons_grid_list_row.append(agent_button)
-
-				except:
-					blank_agent = Image(source=self.blank_image)
-					agent_buttons_grid_list_row.append(blank_agent)
-
-			self.agent_buttons_grid_list.append(agent_buttons_grid_list_row)
-
-		for row in self.agent_buttons_grid_list:
-			for item in row:
-				self.agents_grid.add_widget(item)
+				# agent_button.size_hint_x = agent_button.size_hint_y
+				agent_button_callback = partial(self.on_click_display_memory, o)  #allows passing argument into on_click_display_memory func
+				agent_button.bind(on_press=agent_button_callback)
+				stack.add_widget(agent_button)
+			self.agents_grid.add_widget(stack)
 
 		self.update_memory_panel(self.selected_agent)
 
@@ -160,5 +146,4 @@ class GUI(App):
 				if self.game.rooms[i].occupants[j].on_gui_selected == True:
 					i_selected = i
 					j_selected = j
-					self.agent_buttons_grid_list[i_selected][j_selected].background_color == '#7e300f'
 
