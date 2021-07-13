@@ -1,6 +1,8 @@
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.stacklayout import StackLayout
+
 from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.uix.button import Button
@@ -73,7 +75,6 @@ class GUI(App):
 		
 		self.rooms_list_state.add_widget(self.room_grid)
 
-		# self.agents_grid = GridLayout(cols=self.game.num_agents)
 		self.agent_buttons_grid_list = []
 		self.agents_grid = GridLayout(cols=self.game.num_agents)
 		self.update_data_on_ui(self.game)
