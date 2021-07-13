@@ -107,6 +107,12 @@ class Game():
 		return self.rooms
 
 
+	def refresh_selected_agent(self, selected_agent):
+		for a in self.agents:
+			a.on_gui_selected = False
+		selected_agent.on_gui_selected = True
+
+
 	def print_game_initialization(self):
 		print("========Game is starting with following variables:========")
 		print("--PLAYERS:")
