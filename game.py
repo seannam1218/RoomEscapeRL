@@ -18,13 +18,6 @@ class Game():
 		self.rooms_update_occupants()
 
 
-		# reset order in game
-		for a in self.all_agents:
-			a.reset_order_in_game(None)
-		for i in range(len(self.game_agents)):
-			self.game_agents[i].reset_order_in_game(i)
-
-
 	def start_game(self, num_agents_per_game):
 		self.num_agents_per_game = num_agents_per_game
 		shuffled = copy.deepcopy(self.all_agents)
@@ -35,12 +28,13 @@ class Game():
 		
 		# reset order in game
 		for a in self.all_agents:
-			a.reset_order_in_game(None)
+			a.set_order_in_game(None)
 		for i in range(len(self.game_agents)):
-			self.game_agents[i].reset_order_in_game(i)
+			self.game_agents[i].set_order_in_game(i)
 
-		# TODO:reset order in memory
-
+		# for each agent, reset order in memory
+		for a in self.game_agents:
+			a.reset_memory_order()
 
 
 	def initialize_agents(self):
@@ -125,6 +119,8 @@ class Game():
 			#identify occupants and send messages to them
 			if action["send_message"] is True:
 				for o in self.rooms[a.location].occupants:
+					# TODO: as agent is leaving the room, it hears what other agent in the same room says. 
+					# This should be fixed so that agent can only hear if it stays in the room.
 					o.receive_message(a, a.message)
 		self.agents_observe_room_codes()
 		self.rooms_update_occupants()

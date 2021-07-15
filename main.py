@@ -6,9 +6,8 @@ game = Game(total_num_agents=6, num_agents_per_game=3, num_rooms=3,
 
 gui = GUI(game=game)
 game.print_game_initialization()
+game.start_game(3)
 gui.run()
-
-# gui.update_data_on_ui()
 
 
 
