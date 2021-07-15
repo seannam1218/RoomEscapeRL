@@ -5,6 +5,7 @@ class Agent:
 	
 	def __init__(self, number, name, location, message_len, code_len, num_agents):
 		self.number = number
+		self.order_in_game = None
 		self.name = name
 		self.location = location
 		self.message = [0] * message_len
@@ -57,8 +58,13 @@ class Agent:
 
 
 	def receive_message(self, sender, received_message):
-		self.message_memory[sender.number] = received_message
+		# TODO: change sender.order_in_game to order_in_memory
+		self.message_memory[sender.order_in_game] = received_message
 		self.decode_memory()
+
+
+	def reset_order_in_game(self, order):
+		self.order_in_game = order
 
 
 	def compose_nn_input(self):
