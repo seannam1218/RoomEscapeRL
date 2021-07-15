@@ -1,24 +1,56 @@
 from room import Room
 from agent import Agent
 import random
+import copy
 
 class Game():
-	def __init__(self, num_agents, num_rooms, room_code_len, message_len):
-		self.num_agents = num_agents
+	def __init__(self, total_num_agents, num_agents_per_game, num_rooms, room_code_len, message_len):
+		self.total_num_agents = total_num_agents
+		self.num_agents_per_game = num_agents_per_game
 		self.num_rooms = num_rooms
 		self.room_code_len = room_code_len
 		self.message_len = message_len
-		self.agents = self.initialize_agents()
+		self.all_agents = self.initialize_agents()
+		shuffled = copy.deepcopy(self.all_agents)
+		random.shuffle(shuffled)
+		self.game_agents = shuffled[0:self.num_agents_per_game]
 		self.rooms = self.initialize_rooms()
 		self.rooms_update_occupants()
 
 
+		# reset order in game
+		for a in self.all_agents:
+			a.reset_order_in_game(None)
+		for i in range(len(self.game_agents)):
+			self.game_agents[i].reset_order_in_game(i)
+
+
+	def start_game(self, num_agents_per_game):
+		self.num_agents_per_game = num_agents_per_game
+		shuffled = copy.deepcopy(self.all_agents)
+		random.shuffle(shuffled)
+		self.game_agents = shuffled[0:self.num_agents_per_game]
+		self.rooms = self.initialize_rooms()
+		self.rooms_update_occupants()
+		
+		# reset order in game
+		for a in self.all_agents:
+			a.reset_order_in_game(None)
+		for i in range(len(self.game_agents)):
+			self.game_agents[i].reset_order_in_game(i)
+
+		# TODO:reset order in memory
+
+
+
 	def initialize_agents(self):
 		# define agents
-		alice = Agent(number=0, name="alice", message_len=self.message_len, location=0, code_len=self.room_code_len, num_agents=self.num_agents)
-		bob = Agent(number=1, name="bob", message_len=self.message_len, location=0, code_len=self.room_code_len, num_agents=self.num_agents)
-		charlie = Agent(number=2, name="charlie", message_len=self.message_len, location=0, code_len=self.room_code_len, num_agents=self.num_agents)
-		return [alice, bob, charlie]
+		agents = []
+		for i in range(self.total_num_agents):
+			agent = Agent(number=i, name="robot", message_len=self.message_len, 
+						location=0, code_len=self.room_code_len, num_agents=self.num_agents_per_game)
+			agents.append(agent)
+		return agents
 
 
 	def initialize_rooms(self):
@@ -46,7 +78,7 @@ class Game():
 	def initialize_code_list(self):
 		# create code list
 		code_list = []
-		exclude_list = [[0,0,0]]
+		exclude_list = [[0]*self.room_code_len]
 		for c in range(int((self.num_rooms+1)/2)):
 			rand_code = self.get_rand_code(exclude_list)
 			code_list.append(rand_code)
@@ -73,21 +105,21 @@ class Game():
 
 
 	def agents_observe_room_codes(self):
-		for agent in self.agents:
+		for agent in self.game_agents:
 			agent.set_room_code(self.rooms[agent.location].code)
 
 
 	def rooms_update_occupants(self): #not optimal
 		for r in self.rooms:
 			occupants = []
-			for a in self.agents:
+			for a in self.game_agents:
 				if a.location == r.number:
 					occupants.append(a)
 			r.occupants = occupants
 			
 	
 	def proceed_turn(self):
-		for a in self.agents:
+		for a in self.game_agents:
 			action = a.get_action(self.num_rooms)
 			a.apply_action(action)
 			#identify occupants and send messages to them
@@ -99,7 +131,7 @@ class Game():
 
 
 	def get_agent_actions(self):
-		for a in self.agents:
+		for a in self.game_agents:
 			a.get_action
 
 
@@ -108,7 +140,7 @@ class Game():
 
 
 	def refresh_selected_agent(self, selected_agent):
-		for a in self.agents:
+		for a in self.game_agents:
 			a.on_gui_selected = False
 		selected_agent.on_gui_selected = True
 
@@ -116,7 +148,7 @@ class Game():
 	def print_game_initialization(self):
 		print("========Game is starting with following variables:========")
 		print("--PLAYERS:")
-		for agent in self.agents:
+		for agent in self.game_agents:
 			agent.identify()
 		print("--ROOMS:")
 		for room in self.rooms:
@@ -130,5 +162,5 @@ class Game():
 
 	
 	def print_agents(self):
-		for a in self.agents:
+		for a in self.game_agents:
 			print(a.name, "in room", a.location, " with message", a.message)
