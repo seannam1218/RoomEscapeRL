@@ -1,4 +1,5 @@
 from kivy.app import App
+from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.stacklayout import StackLayout
@@ -7,6 +8,7 @@ from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
+from kivy.graphics import Rectangle
 from functools import partial ##import partial, wich allows to apply arguments to bind functions
 
 class GUI(App):
@@ -19,11 +21,15 @@ class GUI(App):
 
 	def build(self):
 		self.window = GridLayout(cols=2)
+		# Window.clearcolor = (1,1,1,1)
+
 		self.create_left_window()
 		self.window.add_widget(self.left_window)
+
 		self.right_window = BoxLayout(orientation='vertical')
 		self.update_right_window()
 		self.window.add_widget(self.right_window)
+
 		self.update_data_on_ui()
 		return self.window
 
@@ -110,7 +116,6 @@ class GUI(App):
 			self.agents_grid.add_widget(stack)
 
 		self.update_memory_panel(self.selected_agent)
-
 		self.update_right_window()
 
 
@@ -119,6 +124,7 @@ class GUI(App):
 		self.game.refresh_selected_agent(selected_agent)
 		self.update_memory_panel(selected_agent)
 		self.update_agent_buttons()
+		self.update_right_window()
 
 
 	def update_memory_panel(self, selected_agent):
@@ -158,14 +164,36 @@ class GUI(App):
 	def update_right_window(self):
 		# right window contains each agent's conversation history
 		self.right_window.clear_widgets()
+		# for a in self.game.game_agents:
+		# 	stack = StackLayout()
+		# 	image = Image(source=a.image, size_hint_x = 0.2)
+		# 	message = Label(text=str(a.message_memory_decoded),
+		# 				font_size= 18,
+		# 				color= '#00FFCE',
+		# 				size_hint_x = 0.1
+		# 				)
+		# 	stack.add_widget(image)
+		# 	stack.add_widget(message)
+		# 	self.right_window.add_widget(stack)
+
 		for a in self.game.game_agents:
 			stack = StackLayout()
-			image = Image(source=a.image, size_hint_x = 0.2)
-			message = Label(text=str(a.message_memory_decoded),
-						font_size= 18,
-						color= '#00FFCE',
-						size_hint_x = 0.1
-						)
-			stack.add_widget(image)
-			stack.add_widget(message)
+			if a.on_gui_selected:
+				blank = Image(source='images/selection.png', size_hint_x=0.04)
+				# blank.color = '#8a2be2'
+				stack.add_widget(blank)
+			for i in range(len(a.agents_order_in_memory)):
+				if i == 0: 
+					s_x = 0.15
+				else:
+					s_x = 0.07
+				order = a.agents_order_in_memory[i]
+				image = Image(source=self.game.game_agents[order].image, size_hint_x = s_x)
+				message = Label(text=str(a.message_memory_decoded[i]),
+							font_size= 18,
+							color= '#00FFCE',
+							size_hint_x = 0.07
+							)
+				stack.add_widget(image)
+				stack.add_widget(message)
 			self.right_window.add_widget(stack)
