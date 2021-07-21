@@ -111,7 +111,7 @@ class Game():
 					occupants.append(a)
 			r.occupants = occupants
 			
-	
+
 	def proceed_turn(self):
 		for a in self.game_agents:
 			action = a.get_action(self.num_rooms)

@@ -19,6 +19,7 @@ class Agent:
 		self.decode_memory()
 		self.image = "images/" + str(self.number) + ".png"
 		self.on_gui_selected = False
+		self.is_speaking = False
 
 		
 	def decode_memory(self):
@@ -45,15 +46,20 @@ class Agent:
 		message[random.randint(0, len(self.message))-1] = 1
 		action.update({"message" : message})
 		action.update({"send_message" : random.choice([True, False])})
-		action.update({"choose_room" : random.randint(0, num_rooms)})
+		if action['send_message'] is False:
+			action.update({"choose_room" : random.randint(0, num_rooms)})
+		else: 
+			action.update({"choose_room" : self.location})
 		action.update({"escape" : False})
 		return action
 
 
 	def apply_action(self, action):
 		if action["send_message"] is True:
+			self.is_speaking = True
 			self.message = action["message"]
-			return
+		else:
+			self.is_speaking = False
 		self.prev_location = self.location
 		self.location = action["choose_room"]
 

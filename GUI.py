@@ -164,24 +164,11 @@ class GUI(App):
 	def update_right_window(self):
 		# right window contains each agent's conversation history
 		self.right_window.clear_widgets()
-		# for a in self.game.game_agents:
-		# 	stack = StackLayout()
-		# 	image = Image(source=a.image, size_hint_x = 0.2)
-		# 	message = Label(text=str(a.message_memory_decoded),
-		# 				font_size= 18,
-		# 				color= '#00FFCE',
-		# 				size_hint_x = 0.1
-		# 				)
-		# 	stack.add_widget(image)
-		# 	stack.add_widget(message)
-		# 	self.right_window.add_widget(stack)
-
 		for a in self.game.game_agents:
 			stack = StackLayout()
 			if a.on_gui_selected:
-				blank = Image(source='images/selection.png', size_hint_x=0.04)
-				# blank.color = '#8a2be2'
-				stack.add_widget(blank)
+				selection = Image(source='images/selection.png', size_hint_x=0.04)
+				stack.add_widget(selection)
 			for i in range(len(a.agents_order_in_memory)):
 				if i == 0: 
 					s_x = 0.15
@@ -189,9 +176,13 @@ class GUI(App):
 					s_x = 0.07
 				order = a.agents_order_in_memory[i]
 				image = Image(source=self.game.game_agents[order].image, size_hint_x = s_x)
+				if self.game.game_agents[order].is_speaking and self.game.game_agents[order].location == a.location:
+					color = '#e32636'
+				else:
+					color = '#E4DCD2'
 				message = Label(text=str(a.message_memory_decoded[i]),
 							font_size= 18,
-							color= '#00FFCE',
+							color= color,
 							size_hint_x = 0.07
 							)
 				stack.add_widget(image)
