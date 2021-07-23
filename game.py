@@ -116,13 +116,16 @@ class Game():
 		for a in self.game_agents:
 			action = a.get_action(self.num_rooms)
 			a.apply_action(action)
-			#identify occupants and send messages to them
+			
+		#identify occupants and send messages to them
+		for a in self.game_agents:
+			action = a.get_action(self.num_rooms)
 			if action["send_message"] is True:
 				for o in self.rooms[a.location].occupants:
-					if o.is_moving is False:
-						# TODO: as agent is leaving the room, it hears what other agent in the same room says. 
-						# This should be fixed so that agent can only hear if it stays in the room.
-						o.receive_message(a, a.message)
+					# TODO: as agent is leaving the room, it hears what other agent in the same room says. 
+					# This should be fixed so that agent can only hear if it stays in the room.
+					o.receive_message(a, a.message)
+		
 		self.agents_observe_room_codes()
 		self.rooms_update_occupants()
 
