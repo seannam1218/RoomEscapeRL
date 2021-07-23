@@ -119,9 +119,10 @@ class Game():
 			#identify occupants and send messages to them
 			if action["send_message"] is True:
 				for o in self.rooms[a.location].occupants:
-					# TODO: as agent is leaving the room, it hears what other agent in the same room says. 
-					# This should be fixed so that agent can only hear if it stays in the room.
-					o.receive_message(a, a.message)
+					if o.is_moving is False:
+						# TODO: as agent is leaving the room, it hears what other agent in the same room says. 
+						# This should be fixed so that agent can only hear if it stays in the room.
+						o.receive_message(a, a.message)
 		self.agents_observe_room_codes()
 		self.rooms_update_occupants()
 

@@ -9,7 +9,7 @@ class Agent:
 		self.agents_order_in_memory = list(range(0, num_agents))
 		self.name = name
 		self.location = location
-		self.prev_location = None
+		self.prev_location = location
 		self.message = [0] * message_len
 		self.room_code = [0] * code_len
 		self.message_memory = []
@@ -20,6 +20,7 @@ class Agent:
 		self.image = "images/" + str(self.number) + ".png"
 		self.on_gui_selected = False
 		self.is_speaking = False
+		self.is_moving = False
 
 		
 	def decode_memory(self):
@@ -60,13 +61,21 @@ class Agent:
 			self.message = action["message"]
 		else:
 			self.is_speaking = False
+		
+		# update location and related states
 		self.prev_location = self.location
+		if self.prev_location != action["choose_room"]:
+			self.is_moving = True
+		else:
+			self.is_moving = False
+
 		self.location = action["choose_room"]
 
 
 	def receive_message(self, sender, received_message):
-		self.message_memory[self.agents_order_in_memory[sender.order_in_game]] = received_message
-		self.decode_memory()
+		if self.is_moving == False:
+			self.message_memory[self.agents_order_in_memory[sender.order_in_game]] = received_message
+			self.decode_memory()
 
 
 	def set_order_in_game(self, order):

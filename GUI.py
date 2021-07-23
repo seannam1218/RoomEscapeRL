@@ -53,8 +53,8 @@ class GUI(App):
 		self.button_proceed.bind(on_press=self.proceed)
 
 		# memory display
-		self.create_memory_display()
-		self.left_window.add_widget(self.memory_panel)
+		self.create_debug_display()
+		self.left_window.add_widget(self.debug_panel)
 
 		### create a space to represent rooms and its occupants
 		self.create_game_window()
@@ -71,16 +71,16 @@ class GUI(App):
 		self.update_data_on_ui()
 
 
-	def create_memory_display(self):
-		self.memory_panel = BoxLayout(orientation='vertical')
+	def create_debug_display(self):
+		self.debug_panel = BoxLayout(orientation='vertical')
 		self.selected_agent_display = Image(source=self.blank_image)
-		self.memory_panel.add_widget(self.selected_agent_display)
-		self.memory_display = Label(
+		self.debug_panel.add_widget(self.selected_agent_display)
+		self.debug_display = Label(
 						text= "Memory",
 						font_size= 18,
 						color= '#00FFCE'
 						)
-		self.memory_panel.add_widget(self.memory_display)
+		self.debug_panel.add_widget(self.debug_display)
 
 
 	def create_game_window(self):
@@ -115,39 +115,39 @@ class GUI(App):
 				stack.add_widget(agent_button)
 			self.agents_grid.add_widget(stack)
 
-		self.update_memory_panel(self.selected_agent)
+		self.update_debug_panel(self.selected_agent)
 		self.update_right_window()
 
 
 	def on_click_display_memory(self, selected_agent, instance):
 		self.selected_agent = selected_agent
 		self.game.refresh_selected_agent(selected_agent)
-		self.update_memory_panel(selected_agent)
+		self.update_debug_panel(selected_agent)
 		self.update_agent_buttons()
 		self.update_right_window()
 
 
-	def update_memory_panel(self, selected_agent):
-		# update memory panel
-		self.memory_panel.clear_widgets()
+	def update_debug_panel(self, selected_agent):
+		# update debug panel
+		self.debug_panel.clear_widgets()
 		if self.selected_agent == None:
 			image = self.blank_image
 		else:
 			image = selected_agent.image
 		self.selected_agent_display = Image(source=image)
-		self.memory_panel.add_widget(self.selected_agent_display)
+		self.debug_panel.add_widget(self.selected_agent_display)
 
 		if self.selected_agent == None:
-			txt = "Memory"
+			txt = ""
 		else:
-			txt = str(selected_agent.message_memory_decoded)
+			txt = 'is_moving = ' + str(selected_agent.is_moving) + '\nprev = ' + str(selected_agent.prev_location) + '; now = ' + str(selected_agent.location) + '\nis_speaking = ' + str(selected_agent.is_speaking)
 
-		self.memory_display = Label(
+		self.debug_display = Label(
 						text= txt,
 						font_size= 18,
 						color= '#00FFCE'
 						)
-		self.memory_panel.add_widget(self.memory_display)
+		self.debug_panel.add_widget(self.debug_display)
 
 
 	def update_agent_buttons(self):
@@ -176,7 +176,7 @@ class GUI(App):
 					s_x = 0.07
 				order = a.agents_order_in_memory[i]
 				image = Image(source=self.game.game_agents[order].image, size_hint_x = s_x)
-				if self.game.game_agents[order].is_speaking and self.game.game_agents[order].location == a.location:
+				if self.game.game_agents[order].is_speaking and self.game.game_agents[order].location == a.location: #	and self.game.game_agents[order].is_moving == False and a.is_moving == False:
 					color = '#e32636'
 				else:
 					color = '#E4DCD2'
