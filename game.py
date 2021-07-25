@@ -1,10 +1,11 @@
 from room import Room
 from agent import Agent
+from game_history import GameHistory
 import random
 import copy
 
 class Game():
-	def __init__(self, total_num_agents, num_agents_per_game, num_rooms, room_code_len, message_len):
+	def __init__(self, total_num_agents, num_agents_per_game, num_rooms, room_code_len, message_len, history_len):
 		self.total_num_agents = total_num_agents
 		self.num_agents_per_game = num_agents_per_game
 		self.num_rooms = num_rooms
@@ -16,6 +17,7 @@ class Game():
 		self.game_agents = shuffled[0:self.num_agents_per_game]
 		self.rooms = self.initialize_rooms()
 		self.rooms_update_occupants()
+		self.game_history = GameHistory(max_length=history_len)
 
 
 	def start_game(self, num_agents_per_game):
@@ -35,6 +37,8 @@ class Game():
 		# for each agent, reset order in memory
 		for a in self.game_agents:
 			a.reset_memory_order()
+
+		self.game_history.enqueue_game(copy.deepcopy(self))
 
 
 	def initialize_agents(self):
@@ -116,7 +120,16 @@ class Game():
 		for a in self.game_agents:
 			action = a.get_action(self.num_rooms)
 			a.apply_action(action)
-			
+		
+		self.agents_send_messages()
+		self.agents_observe_room_codes()
+		self.rooms_update_occupants()
+
+		game_copy = copy.deepcopy(self)
+		self.game_history.enqueue_game(game_copy)
+
+
+	def agents_send_messages(self):
 		#identify occupants and send messages to them
 		for a in self.game_agents:
 			action = a.get_action(self.num_rooms)
@@ -125,18 +138,11 @@ class Game():
 					# TODO: as agent is leaving the room, it hears what other agent in the same room says. 
 					# This should be fixed so that agent can only hear if it stays in the room.
 					o.receive_message(a, a.message)
-		
-		self.agents_observe_room_codes()
-		self.rooms_update_occupants()
 
 
 	def get_agent_actions(self):
 		for a in self.game_agents:
 			a.get_action
-
-
-	def get_rooms_data(self):
-		return self.rooms
 
 
 	def refresh_selected_agent(self, selected_agent):

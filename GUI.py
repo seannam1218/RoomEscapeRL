@@ -105,7 +105,6 @@ class GUI(App):
 		for r in self.game.rooms:
 			stack = StackLayout()
 			for o in r.occupants:
-				print(o)
 				agent_button = Button(
 							background_normal=o.image,
 							size_hint_x = 0.2	#TODO: needs to be square

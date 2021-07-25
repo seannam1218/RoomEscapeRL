@@ -54,7 +54,10 @@ class Agent:
 		action.update({"escape" : False})
 		return action
 
-
+	# TODO: probably better to break this function into two: one for updating state, one for applying action. GUI class is having trouble differentiating what gets updated when. 
+	def update_states(self, action):
+		return
+		
 	def apply_action(self, action):
 		if action["send_message"] is True:
 			self.is_speaking = True
