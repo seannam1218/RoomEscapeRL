@@ -1,11 +1,10 @@
 from room import Room
 from agent import Agent
-from game_history import GameHistory
 import random
 import copy
 
 class Game():
-	def __init__(self, total_num_agents, num_agents_per_game, num_rooms, room_code_len, message_len, history_len):
+	def __init__(self, total_num_agents, num_agents_per_game, num_rooms, room_code_len, message_len):
 		self.total_num_agents = total_num_agents
 		self.num_agents_per_game = num_agents_per_game
 		self.num_rooms = num_rooms
@@ -17,7 +16,6 @@ class Game():
 		self.game_agents = shuffled[0:self.num_agents_per_game]
 		self.rooms = self.initialize_rooms()
 		self.rooms_update_occupants()
-		self.game_history = GameHistory(max_length=history_len)
 
 
 	def start_game(self, num_agents_per_game):
@@ -38,7 +36,7 @@ class Game():
 		for a in self.game_agents:
 			a.reset_memory_order()
 
-		self.game_history.enqueue_game(copy.deepcopy(self))
+		# self.game_history.enqueue_game(copy.deepcopy(self))
 
 
 	def initialize_agents(self):
@@ -124,9 +122,6 @@ class Game():
 		self.agents_send_messages()
 		self.agents_observe_room_codes()
 		self.rooms_update_occupants()
-
-		game_copy = copy.deepcopy(self)
-		self.game_history.enqueue_game(game_copy)
 
 
 	def agents_send_messages(self):
