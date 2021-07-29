@@ -20,8 +20,6 @@ class GameHistory:
 			del first_game
 
 		self.current_turn+=1
-		print(str(self.queue))
-		print(str(self.current_turn), str(self.selected_index))
 
 
 	def dequeue_game(self):
@@ -33,10 +31,10 @@ class GameHistory:
 
 	def add_to_selected_index(self, num):
 		self.selected_index += num
-		if self.selected_index*-1 > self.max_length:
+		if self.selected_index < self.max_length*-1:
 			self.selected_index = -self.max_length
-		if self.selected_index < 0:
-			self.selected_index = 0
+		if self.selected_index > -1:
+			self.selected_index = -1
 		return self.selected_index
 
 

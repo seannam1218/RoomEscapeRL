@@ -12,7 +12,8 @@ from kivy.graphics import Rectangle
 from functools import partial ##import partial, wich allows to apply arguments to bind functions
 import copy
 
-
+NEW_GAME_BTN_COLOR = '#007fff'
+OTHER_BTN_COLOR = '#FF6600'
 SPEECH_COLOR = '#ff9966'
 INACTIVITY_COLOR = '#E4DCD2'
 
@@ -48,16 +49,9 @@ class GUI(App):
 		self.left_window.size_hint = (0.95, 0.95)
 		self.left_window.pos_hint = {"center_x": 0.5, "center_y":0.5}
 
-		# button for proceeding
-		self.button_next = Button(
-					text= "Next",
-					size_hint= (1,0.2),
-					bold= True,
-					background_color ='#FF6600',
-					background_normal = ""
-					)
-		self.left_window.add_widget(self.button_next)
-		self.button_next.bind(on_press=self.proceed)
+		# create button space
+		self.create_button_space()
+		self.left_window.add_widget(self.button_space)
 
 		# memory display
 		self.create_debug_display()
@@ -73,11 +67,65 @@ class GUI(App):
 		self.game_window.add_widget(self.agents_grid)
 
 
+	def create_button_space(self):
+		self.button_space = GridLayout(cols=3, size_hint_y=0.2)
+
+		# new game button
+		self.button_new_game = Button(
+					text= "New Game",
+					bold= True,
+					background_color = NEW_GAME_BTN_COLOR,
+					background_normal = ""
+					)
+		self.button_space.add_widget(self.button_new_game)
+		self.button_new_game.bind(on_press=self.new_game)
+
+		# previous button
+		self.button_previous = Button(
+					text= "Previous",
+					bold= True,
+					background_color = OTHER_BTN_COLOR,
+					background_normal = ""
+					)
+		self.button_space.add_widget(self.button_previous)
+		self.button_previous.bind(on_press=self.previous_turn)
+
+		# button for proceeding
+		self.button_next = Button(
+					text= "Next",
+					bold= True,
+					background_color = OTHER_BTN_COLOR,
+					background_normal = ""
+					)
+		self.button_space.add_widget(self.button_next)
+		self.button_next.bind(on_press=self.proceed)
+
+
+	def new_game(self, instance):
+		print("new game!")
+		#TODO: implement new game
+
+	
+	def previous_turn(self, instance):
+		print("previous turn...")
+		#TODO: implement previous button callback
+		if self.game_history.selected_index > self.game_history.current_turn*-1:
+			self.game_history.add_to_selected_index(-1)
+			self.update_data_on_ui()
+		print(str(self.game_history.queue))
+		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
+
+
 	def proceed(self, instance):
 		print("proceeding................")
-		self.game.proceed_turn()
-		self.update_game_history()
+		if self.game_history.selected_index == -1:
+			self.game.proceed_turn()
+			self.update_game_history()
+		else:
+			self.game_history.add_to_selected_index(1)
 		self.update_data_on_ui()
+		print(str(self.game_history.queue))
+		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
 
 
 	def create_debug_display(self):
