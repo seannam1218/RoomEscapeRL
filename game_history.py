@@ -1,9 +1,11 @@
+import copy
+
 class GameHistory:
 	
 	def __init__(self, game, max_length):
-		self.queue = [game] 	# stores Game objects
+		self.queue = [copy.deepcopy(game)] 	# stores Game objects
 		self.max_length = max_length
-		self.current_turn = 0
+		self.current_turn = 1
 		self.selected_index = -1
 	
 
@@ -27,14 +29,17 @@ class GameHistory:
 		if len(self.queue) > 1:
 			self.queue = self.queue[1:]
 		return first_game
-	
+
 
 	def add_to_selected_index(self, num):
 		self.selected_index += num
-		if self.selected_index < self.max_length*-1:
+		if self.selected_index < self.current_turn*-1:
+			self.selected_index = self.current_turn*-1
+		if self.selected_index <= self.max_length*-1:
 			self.selected_index = -self.max_length
 		if self.selected_index > -1:
 			self.selected_index = -1
+		print("selected index=", str(self.selected_index))
 		return self.selected_index
 
 

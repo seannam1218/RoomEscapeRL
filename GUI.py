@@ -25,6 +25,8 @@ class GUI(App):
 		self.game_history = game_history
 		self.selected_agent = None
 		self.blank_image = 'images/blank.png'
+		print(str(self.game_history.queue))
+		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
 
 
 	def build(self):
@@ -108,10 +110,8 @@ class GUI(App):
 	
 	def previous_turn(self, instance):
 		print("previous turn...")
-		#TODO: implement previous button callback
-		if self.game_history.selected_index > self.game_history.current_turn*-1:
-			self.game_history.add_to_selected_index(-1)
-			self.update_data_on_ui()
+		self.game_history.add_to_selected_index(-1)
+		self.update_data_on_ui()
 		print(str(self.game_history.queue))
 		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
 
