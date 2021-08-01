@@ -19,6 +19,7 @@ class Game():
 
 
 	def start_game(self, num_agents_per_game):
+		# this function must be called from main.py because the resulting Game object must be passed as an argument for the GameHistory class.
 		self.num_agents_per_game = num_agents_per_game
 		shuffled = copy.deepcopy(self.all_agents)
 		random.shuffle(shuffled)
@@ -35,8 +36,6 @@ class Game():
 		# for each agent, reset order in memory
 		for a in self.game_agents:
 			a.reset_memory_order()
-
-		# self.game_history.enqueue_game(copy.deepcopy(self))
 
 
 	def initialize_agents(self):

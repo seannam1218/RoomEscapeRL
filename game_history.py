@@ -10,10 +10,8 @@ class GameHistory:
 	
 
 	def enqueue_game(self, current_game):
-		# games in the queue need to have 0 length game_history to avoid memory overflow
 		if len(self.queue) > 0:
 			self.queue[-1].game_history = None
-
 		self.queue.append(current_game)
 
 		# dequeue game if history length exceeds max length
@@ -33,13 +31,15 @@ class GameHistory:
 
 	def add_to_selected_index(self, num):
 		self.selected_index += num
+		# selected index cannot be lower than the negative current turn
 		if self.selected_index < self.current_turn*-1:
 			self.selected_index = self.current_turn*-1
-		if self.selected_index <= self.max_length*-1:
+		# selected index must be larger than the negative max length of queue
+		if self.selected_index < self.max_length*-1:
 			self.selected_index = -self.max_length
+		# selected index must be smaller than -1
 		if self.selected_index > -1:
 			self.selected_index = -1
-		print("selected index=", str(self.selected_index))
 		return self.selected_index
 
 
