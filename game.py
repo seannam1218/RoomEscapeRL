@@ -18,9 +18,8 @@ class Game():
 		self.rooms_update_occupants()
 
 
-	def start_game(self, num_agents_per_game):
+	def start_game(self):
 		# this function must be called from main.py because the resulting Game object must be passed as an argument for the GameHistory class.
-		self.num_agents_per_game = num_agents_per_game
 		shuffled = copy.deepcopy(self.all_agents)
 		random.shuffle(shuffled)
 		self.game_agents = shuffled[0:self.num_agents_per_game]
@@ -116,17 +115,18 @@ class Game():
 	def proceed_turn(self):
 		for a in self.game_agents:
 			action = a.get_action(self.num_rooms)
+			a.update_states(action)
 			a.apply_action(action)
 		
-		self.agents_send_messages()
+		self.agents_send_messages(action)
 		self.agents_observe_room_codes()
 		self.rooms_update_occupants()
 
 
-	def agents_send_messages(self):
+	def agents_send_messages(self, action):
 		#identify occupants and send messages to them
 		for a in self.game_agents:
-			action = a.get_action(self.num_rooms)
+			# action = a.get_action(self.num_rooms)
 			if action["send_message"] is True:
 				for o in self.rooms[a.location].occupants:
 					# TODO: as agent is leaving the room, it hears what other agent in the same room says. 
@@ -134,9 +134,9 @@ class Game():
 					o.receive_message(a, a.message)
 
 
-	def get_agent_actions(self):
-		for a in self.game_agents:
-			a.get_action
+	# def get_agent_actions(self):
+	# 	for a in self.game_agents:
+	# 		a.get_action
 
 
 	def refresh_selected_agent(self, selected_agent):

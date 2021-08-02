@@ -22,6 +22,8 @@ class Agent:
 		self.is_speaking = False
 		self.is_moving = False
 
+		self.msg_index = 0 # TODO: this variable is for debugging. remove when debugging is complete.
+
 		
 	def decode_memory(self):
 		self.message_memory_decoded = []
@@ -43,34 +45,49 @@ class Agent:
 	def get_action(self, num_rooms):
 		# TODO: get actions from running the neural network
 		action = {}
-		message = [0]*len(self.message)
-		message[random.randint(0, len(self.message))-1] = 1
-		action.update({"message" : message})
+		action.update({"choose_room" : self.location})
 		action.update({"send_message" : random.choice([True, False])})
-		if action['send_message'] is False:
+		if action['send_message'] is True:
+			self.msg_index += 1
+			message = [0]*len(self.message)
+			message[self.msg_index] = 1
+			action.update({"message" : message})
+		else:
 			action.update({"choose_room" : random.randint(0, num_rooms)})
-		else: 
-			action.update({"choose_room" : self.location})
 		action.update({"escape" : False})
 		return action
 
-	# TODO: probably better to break this function into two: one for updating state, one for applying action. GUI class is having trouble differentiating what gets updated when. 
+
 	def update_states(self, action):
-		return
-		
-	def apply_action(self, action):
+		# update message related states
 		if action["send_message"] is True:
+			# TODO: is_speaking flips to true when agent doesn't say anything. This falsely highlights the message when agent didn't speak
 			self.is_speaking = True
-			self.message = action["message"]
 		else:
 			self.is_speaking = False
 		
-		# update location and related states
-		self.prev_location = self.location
-		if self.prev_location != action["choose_room"]:
+		# update location related states
+		if self.location != action["choose_room"]:
 			self.is_moving = True
 		else:
 			self.is_moving = False
+
+		return
+		
+
+	def apply_action(self, action):
+		if action["send_message"] is True:
+			# self.is_speaking = True
+			self.message = action["message"]
+		# else:
+			# self.is_speaking = False
+		
+		# update location and related states
+		self.prev_location = self.location
+		# if self.prev_location != action["choose_room"]:
+		# 	self.is_moving = True
+		# else:
+		# 	self.is_moving = False
 
 		self.location = action["choose_room"]
 
@@ -89,7 +106,3 @@ class Agent:
 		# change memory order so that the agent of interest always appear in the front
 		if self.order_in_game is not 0:
 			self.agents_order_in_memory[0], self.agents_order_in_memory[self.order_in_game] = self.agents_order_in_memory[self.order_in_game], self.agents_order_in_memory[0]
-
-
-	def compose_nn_input(self):
-		return

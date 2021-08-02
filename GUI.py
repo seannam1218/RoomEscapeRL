@@ -105,14 +105,15 @@ class GUI(App):
 
 	def new_game(self, instance):
 		print("new game!")
-		#TODO: implement new game
+		self.game.start_game()
+		self.game_history.refresh_history(self.game)
+		self.update_data_on_ui()
 
 	
 	def previous_turn(self, instance):
 		print("previous turn...")
 		self.game_history.add_to_selected_index(-1)
 		self.update_data_on_ui()
-		print(str(self.game_history.queue))
 		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
 
 
@@ -124,7 +125,6 @@ class GUI(App):
 		else:
 			self.game_history.add_to_selected_index(1)
 		self.update_data_on_ui()
-		print(str(self.game_history.queue))
 		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
 
 
@@ -154,7 +154,6 @@ class GUI(App):
 							pos = (self.left_window.width/2, 100 - i*self.left_window.height/selected_game.num_rooms),
 							background_color ='#00FFCE',
 							)
-			# TODO: player mode needs to have a callback function for clicking on room buttons
 			self.room_grid.add_widget(button)
 		self.game_window.add_widget(self.room_grid)
 	

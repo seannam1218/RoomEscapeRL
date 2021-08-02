@@ -49,6 +49,6 @@ class GameHistory:
 
 
 	def refresh_history(self, game):
-		self.queue = [game] 	# stores Game objects
-		self.current_turn = 0
-		self.selected_index = 0
+		self.queue = [copy.deepcopy(game)]
+		self.current_turn = 1
+		self.selected_index = -1
