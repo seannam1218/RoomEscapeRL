@@ -36,6 +36,13 @@ class Game():
 		for a in self.game_agents:
 			a.reset_memory_order()
 
+		# lock up each agent in each room
+		for i in range(len(self.game_agents)):
+			self.game_agents[i].location = i
+		self.initialize_game()
+
+		self.print_game_initialization()
+
 
 	def initialize_agents(self):
 		# define agents
@@ -48,49 +55,27 @@ class Game():
 
 
 	def initialize_rooms(self):
-		# create lobby
-		lobby_location = [0] * (self.num_rooms + 1)
-		lobby_code = [0] * self.room_code_len
-		lobby = Room(0, lobby_location, lobby_code)
-		rooms = [lobby]
-		
-		# create rooms
-		code_list, escape_code = self.initialize_code_list()
-		for i in range(1, self.num_rooms+1):
+		rooms = []
+		shuffled_room_list = list(range(0, self.num_rooms))
+		random.shuffle(shuffled_room_list)
+
+		for i in range(0, self.num_rooms):
+			# generate room number
 			room_number = i
-			room_binary = [0]*(1+self.num_rooms)
+			room_binary = [0]*(self.num_rooms)
 			room_binary[i] += 1
-			code = code_list[i-1]
+			
+			# generate room code
+			rand_room = [0] * self.num_rooms
+			rand_room[shuffled_room_list[i]] = 1
+			rand_num = [0] * self.room_code_len
+			rand_num[random.randint(0, self.room_code_len-1)] = 1
+			code = (rand_room, rand_num)
+
 			room = Room(room_number, room_binary, code)
-			if room.code == escape_code:
-				room.set_escape_room(True)
 			rooms.append(room)
-		
+
 		return rooms
-
-
-	def initialize_code_list(self):
-		# create code list
-		code_list = []
-		exclude_list = [[0]*self.room_code_len]
-		for c in range(int((self.num_rooms+1)/2)):
-			rand_code = self.get_rand_code(exclude_list)
-			code_list.append(rand_code)
-			code_list.append(rand_code)
-			exclude_list.append(rand_code)
-		code_list = code_list[0:-1]
-		escape_code = code_list[-1]
-		random.shuffle(code_list)
-		return code_list, escape_code
-
-
-	def get_rand_code(self, exclude_list):
-		rand_code = []
-		for d in range(self.room_code_len):
-			rand_code.append(random.randint(0, 1))
-		if rand_code in exclude_list:
-			return self.get_rand_code(exclude_list)
-		return rand_code
 
 
 	def initialize_game(self):
@@ -115,7 +100,6 @@ class Game():
 	def proceed_turn(self):
 		for a in self.game_agents:
 			action = a.get_action(self.num_rooms)
-			a.update_states(action)
 			a.apply_action(action)
 		
 		self.agents_send_messages(action)
@@ -126,17 +110,10 @@ class Game():
 	def agents_send_messages(self, action):
 		#identify occupants and send messages to them
 		for a in self.game_agents:
-			# action = a.get_action(self.num_rooms)
+			action = a.get_action(self.num_rooms)
 			if action["send_message"] is True:
-				for o in self.rooms[a.location].occupants:
-					# TODO: as agent is leaving the room, it hears what other agent in the same room says. 
-					# This should be fixed so that agent can only hear if it stays in the room.
+				for o in self.game_agents:
 					o.receive_message(a, a.message)
-
-
-	# def get_agent_actions(self):
-	# 	for a in self.game_agents:
-	# 		a.get_action
 
 
 	def refresh_selected_agent(self, selected_agent):
@@ -146,7 +123,7 @@ class Game():
 
 
 	def print_game_initialization(self):
-		print("========Game is starting with following variables:========")
+		print("=" * 30)
 		print("--PLAYERS:")
 		for agent in self.game_agents:
 			agent.identify()

@@ -5,12 +5,18 @@ class Room:
 		self.binary = binary
 		self.code = code
 		self.occupants = []
-		self.escape_room = False
 	
 
-	def set_escape_room(self, boolean):
-		self.escape_room = boolean
+	def set_code(self, code):
+		self.code = code
+
+	
+	def get_decoded_code(self):
+		room = self.code[0].index(1)
+		button = self.code[1].index(1)
+		return (room, button)
 
 
 	def identify(self):
-		print("room", self.number, ";", self.binary, ";", self.code, "; escape room?", self.escape_room)
+		decoded_code = self.get_decoded_code()
+		print("room", self.number, ";", self.binary, ";", "room " + str(decoded_code[0]) + " has " + str(decoded_code[1]))

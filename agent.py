@@ -17,10 +17,11 @@ class Agent:
 			self.message_memory.append([0] * message_len)
 		self.message_memory_decoded = []
 		self.decode_memory()
+		self.is_speaking = False
 		self.image = "images/" + str(self.number) + ".png"
 		self.on_gui_selected = False
-		self.is_speaking = False
-		self.is_moving = False
+		self.input_password = None
+
 
 		self.msg_index = 0 # TODO: this variable is for debugging. remove when debugging is complete.
 
@@ -45,55 +46,27 @@ class Agent:
 	def get_action(self, num_rooms):
 		# TODO: get actions from running the neural network
 		action = {}
-		action.update({"choose_room" : self.location})
 		action.update({"send_message" : random.choice([True, False])})
 		if action['send_message'] is True:
+			self.is_speaking = True
 			self.msg_index += 1
 			message = [0]*len(self.message)
 			message[self.msg_index] = 1
 			action.update({"message" : message})
 		else:
-			action.update({"choose_room" : random.randint(0, num_rooms)})
-		action.update({"escape" : False})
+			self.is_speaking = False
+			action.update({"input_password" : random.randint(0, len(self.room_code)-1)})
 		return action
 
 
-	def update_states(self, action):
-		# update message related states
-		if action["send_message"] is True:
-			# TODO: is_speaking flips to true when agent doesn't say anything. This falsely highlights the message when agent didn't speak
-			self.is_speaking = True
-		else:
-			self.is_speaking = False
-		
-		# update location related states
-		if self.location != action["choose_room"]:
-			self.is_moving = True
-		else:
-			self.is_moving = False
-
-		return
-		
-
 	def apply_action(self, action):
 		if action["send_message"] is True:
-			# self.is_speaking = True
 			self.message = action["message"]
-		# else:
-			# self.is_speaking = False
-		
-		# update location and related states
-		self.prev_location = self.location
-		# if self.prev_location != action["choose_room"]:
-		# 	self.is_moving = True
-		# else:
-		# 	self.is_moving = False
-
-		self.location = action["choose_room"]
+		else:
+			self.input_password = action["input_password"]
 
 
 	def receive_message(self, sender, received_message):
-		if self.is_moving == False:
 			self.message_memory[self.agents_order_in_memory[sender.order_in_game]] = received_message
 			self.decode_memory()
 

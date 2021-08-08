@@ -100,7 +100,7 @@ class GUI(App):
 					background_normal = ""
 					)
 		self.button_space.add_widget(self.button_next)
-		self.button_next.bind(on_press=self.proceed)
+		self.button_next.bind(on_press=self.next_turn)
 
 
 	def new_game(self, instance):
@@ -117,7 +117,7 @@ class GUI(App):
 		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
 
 
-	def proceed(self, instance):
+	def next_turn(self, instance):
 		print("proceeding................")
 		if self.game_history.selected_index == -1:
 			self.game.proceed_turn()
@@ -125,7 +125,7 @@ class GUI(App):
 		else:
 			self.game_history.add_to_selected_index(1)
 		self.update_data_on_ui()
-		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
+		self.game.print_game_initialization()
 
 
 	def create_debug_display(self):
@@ -146,7 +146,7 @@ class GUI(App):
 		self.room_grid = GridLayout(cols=1)
 		
 		selected_game = self.game_history.queue[self.game_history.selected_index]
-		for i in range(selected_game.num_rooms+1):
+		for i in range(selected_game.num_rooms):
 			button = Button(
 							text= "ROOM" + str(i),
 							size_hint= (0.2,0.5),
@@ -185,11 +185,11 @@ class GUI(App):
 		self.selected_agent = selected_agent
 		self.game.refresh_selected_agent(selected_agent)
 		self.update_debug_panel(selected_agent)
-		self.update_agent_buttons()
 		self.update_right_window()
 
 
 	def update_debug_panel(self, selected_agent):
+		# TODO: pass the agent number instead of the agent object. conversation history UI should update automatically when pressing next and prev
 		# update debug panel
 		self.debug_panel.clear_widgets()
 		if self.selected_agent == None:
@@ -202,7 +202,7 @@ class GUI(App):
 		if self.selected_agent == None:
 			txt = ""
 		else:
-			txt = 'is_moving = ' + str(selected_agent.is_moving) + '\nprev = ' + str(selected_agent.prev_location) + '; now = ' + str(selected_agent.location) + '\nis_speaking = ' + str(selected_agent.is_speaking)
+			txt = 'location = ' + str(selected_agent.location) + '\nis_speaking = ' + str(selected_agent.is_speaking) + '\nmessage = ' + str(selected_agent.message) + '\ninput_password = ' + str(selected_agent.input_password)
 
 		self.debug_display = Label(
 						text= txt,
@@ -210,18 +210,6 @@ class GUI(App):
 						color= '#00FFCE'
 						)
 		self.debug_panel.add_widget(self.debug_display)
-
-
-	def update_agent_buttons(self):
-		# TODO:refresh buttons
-		i_selected = None
-		j_selected = None
-		selected_game = self.game_history.queue[self.game_history.selected_index]
-		for i in range(len(selected_game.rooms)): 
-			for j in range(len(selected_game.rooms[i].occupants)):
-				if selected_game.rooms[i].occupants[j].on_gui_selected == True:
-					i_selected = i
-					j_selected = j
 
 
 	def update_right_window(self):
