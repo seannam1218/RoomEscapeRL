@@ -116,12 +116,6 @@ class Game():
 					o.receive_message(a, a.message)
 
 
-	def refresh_selected_agent(self, selected_agent):
-		for a in self.game_agents:
-			a.on_gui_selected = False
-		selected_agent.on_gui_selected = True
-
-
 	def print_game_initialization(self):
 		print("=" * 30)
 		print("--PLAYERS:")

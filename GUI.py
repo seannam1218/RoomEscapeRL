@@ -23,7 +23,7 @@ class GUI(App):
 		super(GUI, self).__init__(**kwargs)
 		self.game = game
 		self.game_history = game_history
-		self.selected_agent = None
+		self.selected_agent_num = None
 		self.blank_image = 'images/blank.png'
 		print(str(self.game_history.queue))
 		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
@@ -107,6 +107,7 @@ class GUI(App):
 		print("new game!")
 		self.game.start_game()
 		self.game_history.refresh_history(self.game)
+		self.selected_agent_num = None
 		self.update_data_on_ui()
 
 	
@@ -172,38 +173,37 @@ class GUI(App):
 							background_normal=o.image,
 							size_hint_x = 0.2	#TODO: needs to be square
 							)
-				agent_button_callback = partial(self.on_click_display_memory, o)  #allows passing argument into on_click_display_memory func
+				agent_button_callback = partial(self.on_click_display_memory, o.order_in_game)  #allows passing argument into on_click_display_memory func
 				agent_button.bind(on_press=agent_button_callback)
 				stack.add_widget(agent_button)
 			self.agents_grid.add_widget(stack)
 
-		self.update_debug_panel(self.selected_agent)
+		self.update_debug_panel()
 		self.update_right_window()
 
 
-	def on_click_display_memory(self, selected_agent, instance):
-		self.selected_agent = selected_agent
-		self.game.refresh_selected_agent(selected_agent)
-		self.update_debug_panel(selected_agent)
+	def on_click_display_memory(self, num, instance):
+		self.selected_agent_num = num
+		# self.game.refresh_selected_agent(selected_agent)
+		self.update_debug_panel()
 		self.update_right_window()
 
 
-	def update_debug_panel(self, selected_agent):
-		# TODO: pass the agent number instead of the agent object. conversation history UI should update automatically when pressing next and prev
+	def update_debug_panel(self):
 		# update debug panel
 		self.debug_panel.clear_widgets()
-		if self.selected_agent == None:
-			image = self.blank_image
-		else:
-			image = selected_agent.image
-		self.selected_agent_display = Image(source=image)
-		self.debug_panel.add_widget(self.selected_agent_display)
+		selected_game = self.game_history.queue[self.game_history.selected_index]
 
-		if self.selected_agent == None:
+		if self.selected_agent_num == None:
+			image = self.blank_image
 			txt = ""
 		else:
+			selected_agent = selected_game.game_agents[self.selected_agent_num]
+			image = selected_agent.image
 			txt = 'location = ' + str(selected_agent.location) + '\nis_speaking = ' + str(selected_agent.is_speaking) + '\nmessage = ' + str(selected_agent.message) + '\ninput_password = ' + str(selected_agent.input_password)
 
+		self.selected_agent_display = Image(source=image)
+		self.debug_panel.add_widget(self.selected_agent_display)
 		self.debug_display = Label(
 						text= txt,
 						font_size= 18,
@@ -213,21 +213,31 @@ class GUI(App):
 
 
 	def update_right_window(self):
+		# TODO: NEEDS FIXING!!
 		# right window contains each agent's conversation history
 		self.right_window.clear_widgets()
 		selected_game = self.game_history.queue[self.game_history.selected_index]
-		for a in selected_game.game_agents:
+
+		for j in range(len(selected_game.game_agents)):
+			a = selected_game.game_agents[j]
 			stack = StackLayout()
-			if a.on_gui_selected:
+
+			# use an image to highlight the agent selection.
+			if self.selected_agent_num == j:
 				selection = Image(source='images/selection.png', size_hint_x=0.04)
 				stack.add_widget(selection)
+
+			
 			for i in range(len(a.agents_order_in_memory)):
+				# resize image - increase size if the image is of the agent itself.
 				if i == 0: 
 					s_x = 0.15
 				else:
 					s_x = 0.07
 				order = a.agents_order_in_memory[i]
 				image = Image(source=selected_game.game_agents[order].image, size_hint_x = s_x)
+
+				# highlight speech color depending on whether agent is speaking or not
 				if selected_game.game_agents[order].is_speaking and selected_game.game_agents[order].location == a.location:
 					color = SPEECH_COLOR
 				else:

@@ -19,7 +19,6 @@ class Agent:
 		self.decode_memory()
 		self.is_speaking = False
 		self.image = "images/" + str(self.number) + ".png"
-		self.on_gui_selected = False
 		self.input_password = None
 
 
