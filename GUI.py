@@ -213,7 +213,6 @@ class GUI(App):
 
 
 	def update_right_window(self):
-		# TODO: NEEDS FIXING!!
 		# right window contains each agent's conversation history
 		self.right_window.clear_widgets()
 		selected_game = self.game_history.queue[self.game_history.selected_index]
@@ -227,7 +226,6 @@ class GUI(App):
 				selection = Image(source='images/selection.png', size_hint_x=0.04)
 				stack.add_widget(selection)
 
-			
 			for i in range(len(a.agents_order_in_memory)):
 				# resize image - increase size if the image is of the agent itself.
 				if i == 0: 
@@ -238,7 +236,7 @@ class GUI(App):
 				image = Image(source=selected_game.game_agents[order].image, size_hint_x = s_x)
 
 				# highlight speech color depending on whether agent is speaking or not
-				if selected_game.game_agents[order].is_speaking and selected_game.game_agents[order].location == a.location:
+				if selected_game.game_agents[order].is_speaking:
 					color = SPEECH_COLOR
 				else:
 					color = INACTIVITY_COLOR

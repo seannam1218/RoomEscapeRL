@@ -101,19 +101,14 @@ class Game():
 		for a in self.game_agents:
 			action = a.get_action(self.num_rooms)
 			a.apply_action(action)
-		
-		self.agents_send_messages(action)
-		self.agents_observe_room_codes()
-		self.rooms_update_occupants()
 
-
-	def agents_send_messages(self, action):
-		#identify occupants and send messages to them
-		for a in self.game_agents:
-			action = a.get_action(self.num_rooms)
+			# other agents receive message
 			if action["send_message"] is True:
 				for o in self.game_agents:
 					o.receive_message(a, a.message)
+		
+		self.agents_observe_room_codes()
+		self.rooms_update_occupants()
 
 
 	def print_game_initialization(self):
