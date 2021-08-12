@@ -4,11 +4,11 @@ import random
 import copy
 
 class Game():
-	def __init__(self, total_num_agents, num_agents_per_game, num_rooms, room_code_len, message_len):
+	def __init__(self, total_num_agents, num_agents_per_game, num_rooms, password_len, message_len):
 		self.total_num_agents = total_num_agents
 		self.num_agents_per_game = num_agents_per_game
 		self.num_rooms = num_rooms
-		self.room_code_len = room_code_len
+		self.password_len = password_len
 		self.message_len = message_len
 		self.all_agents = self.initialize_agents()
 		shuffled = copy.deepcopy(self.all_agents)
@@ -49,7 +49,7 @@ class Game():
 		agents = []
 		for i in range(self.total_num_agents):
 			agent = Agent(number=i, name="robot", message_len=self.message_len, 
-						location=0, code_len=self.room_code_len, num_agents=self.num_agents_per_game)
+						location=0, password_len=self.password_len, num_agents=self.num_agents_per_game)
 			agents.append(agent)
 		return agents
 
@@ -65,27 +65,32 @@ class Game():
 			room_binary = [0]*(self.num_rooms)
 			room_binary[i] += 1
 			
-			# generate room code
-			rand_room = [0] * self.num_rooms
-			rand_room[shuffled_room_list[i]] = 1
-			rand_num = [0] * self.room_code_len
-			rand_num[random.randint(0, self.room_code_len-1)] = 1
-			code = (rand_room, rand_num)
+			# generate random password
+			password = [0] * self.password_len
+			password[random.randint(0, self.password_len-1)] = 1
 
-			room = Room(room_number, room_binary, code)
+			room = Room(room_number, room_binary, password)
 			rooms.append(room)
+
+		for j in range(0, self.num_rooms):
+			# generate room hint
+			rand_room = [0] * self.num_rooms
+			rand_room[shuffled_room_list[j]] = 1
+			rand_room_index = rand_room.index(1)
+			hint = (rand_room, rooms[rand_room_index].password)
+			rooms[j].set_hint(hint)
 
 		return rooms
 
 
 	def initialize_game(self):
-		self.agents_observe_room_codes()
+		self.agents_observe_room_hints()
 		self.rooms_update_occupants()
 
 
-	def agents_observe_room_codes(self):
+	def agents_observe_room_hints(self):
 		for agent in self.game_agents:
-			agent.set_room_code(self.rooms[agent.location].code)
+			agent.set_room_hint(self.rooms[agent.location].hint)
 
 
 	def rooms_update_occupants(self): #not optimal
@@ -107,7 +112,7 @@ class Game():
 				for o in self.game_agents:
 					o.receive_message(a, a.message)
 		
-		self.agents_observe_room_codes()
+		self.agents_observe_room_hints()
 		self.rooms_update_occupants()
 
 

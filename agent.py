@@ -3,7 +3,7 @@ import random
 
 class Agent:
 	
-	def __init__(self, number, name, location, message_len, code_len, num_agents):
+	def __init__(self, number, name, location, message_len, password_len, num_agents):
 		self.number = number
 		self.order_in_game = None
 		self.agents_order_in_memory = list(range(0, num_agents))
@@ -11,7 +11,7 @@ class Agent:
 		self.location = location
 		self.prev_location = location
 		self.message = [0] * message_len
-		self.room_code = [0] * code_len
+		self.room_hint = [0] * password_len
 		self.message_memory = []
 		for i in range(num_agents): 
 			self.message_memory.append([0] * message_len)
@@ -38,8 +38,8 @@ class Agent:
 		print(self.name, ": in room", self.location, ", message ", self.message)
 
 
-	def set_room_code(self, room_code):
-		self.room_code = room_code
+	def set_room_hint(self, room_hint):
+		self.room_hint = room_hint
 
 
 	def get_action(self, num_rooms):
@@ -54,7 +54,7 @@ class Agent:
 			action.update({"message" : message})
 		else:
 			self.is_speaking = False
-			action.update({"input_password" : random.randint(0, len(self.room_code)-1)})
+			action.update({"input_password" : random.randint(0, len(self.room_hint)-1)})
 		return action
 
 

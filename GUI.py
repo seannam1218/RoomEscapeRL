@@ -149,7 +149,7 @@ class GUI(App):
 		selected_game = self.game_history.queue[self.game_history.selected_index]
 		for i in range(selected_game.num_rooms):
 			button = Button(
-							text= "ROOM" + str(i),
+							text= "ROOM " + str(i) + "\npassword: " + str(selected_game.rooms[i].get_decoded_password()) + "\nhint: " + str(selected_game.rooms[i].get_decoded_hint()),
 							size_hint= (0.2,0.5),
 							bold= True,
 							pos = (self.left_window.width/2, 100 - i*self.left_window.height/selected_game.num_rooms),
