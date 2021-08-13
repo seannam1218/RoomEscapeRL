@@ -7,10 +7,15 @@ class Room:
 		self.binary = binary
 		self.password = password
 		self.occupants = []
+		self.unlocked = False
 	
 
 	def set_hint(self, hint):
 		self.hint = hint
+
+
+	def unlock(self, boolean):
+		self.unlocked = boolean
 
 
 	def get_decoded_password(self):
@@ -24,9 +29,13 @@ class Room:
 		return (room, button)
 
 
-	def check_escape_success(self):
-		if self.occupants[0].input_password == self.hint:
+	def check_password_match(self):
+		print(self.occupants[0].input_password, self.password)
+		if self.occupants[0].input_password == self.password:
+			print('unlocked!')
 			return True
+		else:
+			return False
 
 
 	def identify(self):

@@ -11,9 +11,7 @@ class Game():
 		self.password_len = password_len
 		self.message_len = message_len
 		self.all_agents = self.initialize_agents()
-		shuffled = copy.deepcopy(self.all_agents)
-		random.shuffle(shuffled)
-		self.game_agents = shuffled[0:self.num_agents_per_game]
+		self.game_agents = self.all_agents[0:self.num_agents_per_game]
 		self.rooms = self.initialize_rooms()
 		self.rooms_update_occupants()
 
@@ -51,14 +49,14 @@ class Game():
 			agent = Agent(number=i, name="robot", message_len=self.message_len, 
 						location=0, password_len=self.password_len, num_agents=self.num_agents_per_game)
 			agents.append(agent)
-		return agents
+		shuffled = copy.deepcopy(agents)
+		random.shuffle(shuffled)
+		return shuffled
 
 
 	def initialize_rooms(self):
 		rooms = []
-		shuffled_room_list = list(range(0, self.num_rooms))
-		random.shuffle(shuffled_room_list)
-
+		
 		for i in range(0, self.num_rooms):
 			# generate room number
 			room_number = i
@@ -71,6 +69,9 @@ class Game():
 
 			room = Room(room_number, room_binary, password)
 			rooms.append(room)
+
+		shuffled_room_list = list(range(0, self.num_rooms))
+		random.shuffle(shuffled_room_list)
 
 		for j in range(0, self.num_rooms):
 			# generate room hint
@@ -104,15 +105,19 @@ class Game():
 
 	def proceed_turn(self):
 		for a in self.game_agents:
-			action = a.get_action(self.num_rooms)
+			action = a.get_action()
 			a.apply_action(action)
 
 			# other agents receive message
 			if action["send_message"] is True:
 				for o in self.game_agents:
 					o.receive_message(a, a.message)
-		
+
 		self.agents_observe_room_hints()
+
+		for r in self.rooms:
+			r.unlock(r.check_password_match())
+			
 		self.rooms_update_occupants()
 
 

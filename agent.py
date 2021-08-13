@@ -42,19 +42,22 @@ class Agent:
 		self.room_hint = room_hint
 
 
-	def get_action(self, num_rooms):
+	def get_action(self):
 		# TODO: get actions from running the neural network
-		action = {}
+		action = {"send_message": None, "message": None, "input_password": None}
 		action.update({"send_message" : random.choice([True, False])})
 		if action['send_message'] is True:
 			self.is_speaking = True
 			self.msg_index += 1
+			self.msg_index = self.msg_index % 8
 			message = [0]*len(self.message)
 			message[self.msg_index] = 1
 			action.update({"message" : message})
 		else:
 			self.is_speaking = False
-			action.update({"input_password" : random.randint(0, len(self.room_hint)-1)})
+			input_password = [0]*4 # TODO: this is for debugging. Change the 4 to something else. Same with randint line below
+			input_password[random.randint(0,3)] = 1
+			action.update({"input_password" : input_password})
 		return action
 
 

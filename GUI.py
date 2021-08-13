@@ -14,6 +14,8 @@ import copy
 
 NEW_GAME_BTN_COLOR = '#007fff'
 OTHER_BTN_COLOR = '#FF6600'
+LOCKED_COLOR = '#52349E'
+UNLOCKED_COLOR = '#00FA9E'
 SPEECH_COLOR = '#ff9966'
 INACTIVITY_COLOR = '#E4DCD2'
 
@@ -40,7 +42,7 @@ class GUI(App):
 		self.update_right_window()
 		self.window.add_widget(self.right_window)
 
-		self.update_data_on_ui()
+		self.update_ui()
 		return self.window
 
 
@@ -108,13 +110,13 @@ class GUI(App):
 		self.game.start_game()
 		self.game_history.refresh_history(self.game)
 		self.selected_agent_num = None
-		self.update_data_on_ui()
+		self.update_ui()
 
 	
 	def previous_turn(self, instance):
 		print("previous turn...")
 		self.game_history.add_to_selected_index(-1)
-		self.update_data_on_ui()
+		self.update_ui()
 		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
 
 
@@ -125,8 +127,7 @@ class GUI(App):
 			self.update_game_history()
 		else:
 			self.game_history.add_to_selected_index(1)
-		self.update_data_on_ui()
-		self.game.print_game_initialization()
+		self.update_ui()
 
 
 	def create_debug_display(self):
@@ -145,17 +146,7 @@ class GUI(App):
 		# create a space to represent rooms and its occupants
 		self.game_window = GridLayout(cols=2)
 		self.room_grid = GridLayout(cols=1)
-		
-		selected_game = self.game_history.queue[self.game_history.selected_index]
-		for i in range(selected_game.num_rooms):
-			button = Button(
-							text= "ROOM " + str(i) + "\npassword: " + str(selected_game.rooms[i].get_decoded_password()) + "\nhint: " + str(selected_game.rooms[i].get_decoded_hint()),
-							size_hint= (0.2,0.5),
-							bold= True,
-							pos = (self.left_window.width/2, 100 - i*self.left_window.height/selected_game.num_rooms),
-							background_color ='#00FFCE',
-							)
-			self.room_grid.add_widget(button)
+		self.update_room_grid()
 		self.game_window.add_widget(self.room_grid)
 	
 
@@ -163,7 +154,14 @@ class GUI(App):
 		self.game_history.enqueue_game(copy.deepcopy(self.game))
 
 
-	def update_data_on_ui(self):
+	def update_ui(self):
+		self.update_agents_grid()
+		self.update_room_grid()
+		self.update_debug_panel()
+		self.update_right_window()
+
+
+	def update_agents_grid(self):
 		self.agents_grid.clear_widgets()
 		selected_game = self.game_history.queue[self.game_history.selected_index]
 		for r in selected_game.rooms:
@@ -178,15 +176,31 @@ class GUI(App):
 				stack.add_widget(agent_button)
 			self.agents_grid.add_widget(stack)
 
-		self.update_debug_panel()
-		self.update_right_window()
-
 
 	def on_click_display_memory(self, num, instance):
 		self.selected_agent_num = num
 		# self.game.refresh_selected_agent(selected_agent)
 		self.update_debug_panel()
 		self.update_right_window()
+
+
+	def update_room_grid(self):
+		# create a space to represent rooms and its occupants
+		self.room_grid.clear_widgets()
+		selected_game = self.game_history.queue[self.game_history.selected_index]
+		for i in range(selected_game.num_rooms):
+			if selected_game.rooms[i].unlocked == True:
+				button_color = UNLOCKED_COLOR
+			else:
+				button_color = LOCKED_COLOR
+			button = Button(
+							text= "ROOM " + str(i) + "\npassword: " + str(selected_game.rooms[i].get_decoded_password()) + "\nhint: " + str(selected_game.rooms[i].get_decoded_hint()),
+							size_hint= (0.2,0.5),
+							bold= True,
+							pos = (self.left_window.width/2, 100 - i*self.left_window.height/selected_game.num_rooms),
+							background_color = button_color,
+							)
+			self.room_grid.add_widget(button)
 
 
 	def update_debug_panel(self):
