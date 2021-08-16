@@ -3,7 +3,7 @@ from GUI import GUI
 from game_history import GameHistory
 
 
-game = Game(total_num_agents=6, num_agents_per_game=3, num_rooms=3, 
+game = Game(total_num_agents=6, num_agents_per_game=5, num_rooms=5, 
 			password_len=4, message_len=8)
 game.start_game()
 

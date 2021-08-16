@@ -27,8 +27,6 @@ class GUI(App):
 		self.game_history = game_history
 		self.selected_agent_num = None
 		self.blank_image = 'images/blank.png'
-		print(str(self.game_history.queue))
-		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
 
 
 	def build(self):
@@ -132,14 +130,6 @@ class GUI(App):
 
 	def create_debug_display(self):
 		self.debug_panel = BoxLayout(orientation='vertical')
-		self.selected_agent_display = Image(source=self.blank_image)
-		self.debug_panel.add_widget(self.selected_agent_display)
-		self.debug_display = Label(
-						text= "Memory",
-						font_size= 18,
-						color= '#00FFCE'
-						)
-		self.debug_panel.add_widget(self.debug_display)
 
 
 	def create_game_window(self):
@@ -164,22 +154,31 @@ class GUI(App):
 	def update_agents_grid(self):
 		self.agents_grid.clear_widgets()
 		selected_game = self.game_history.queue[self.game_history.selected_index]
-		for r in selected_game.rooms:
+		for i in range(len(selected_game.game_agents)):
+			agent = selected_game.game_agents[i]
 			stack = StackLayout()
-			for o in r.occupants:
-				agent_button = Button(
-							background_normal=o.image,
-							size_hint_x = 0.2	#TODO: needs to be square
-							)
-				agent_button_callback = partial(self.on_click_display_memory, o.order_in_game)  #allows passing argument into on_click_display_memory func
-				agent_button.bind(on_press=agent_button_callback)
-				stack.add_widget(agent_button)
+
+			image = Image(source=agent.image, size_hint_x = 0.2)
+			stack.add_widget(image)
+
+			if agent.is_speaking:
+				text = "says:\n" + str(agent.message)
+				color = SPEECH_COLOR
+			else:
+				text = "inputs password:\n" + str(agent.input_password)
+				color = UNLOCKED_COLOR
+			label = Label(
+					text= text,
+					color= color,
+					size_hint_x = 0.7
+					)
+			stack.add_widget(label)
+
 			self.agents_grid.add_widget(stack)
 
 
 	def on_click_display_memory(self, num, instance):
 		self.selected_agent_num = num
-		# self.game.refresh_selected_agent(selected_agent)
 		self.update_debug_panel()
 		self.update_right_window()
 
@@ -194,12 +193,10 @@ class GUI(App):
 			else:
 				button_color = LOCKED_COLOR
 			button = Button(
-							text= "ROOM " + str(i) + "\npassword: " + str(selected_game.rooms[i].get_decoded_password()) + "\nhint: " + str(selected_game.rooms[i].get_decoded_hint()),
-							size_hint= (0.2,0.5),
-							bold= True,
-							pos = (self.left_window.width/2, 100 - i*self.left_window.height/selected_game.num_rooms),
-							background_color = button_color,
-							)
+						text= "ROOM " + str(i) + "\npassword: " + str(selected_game.rooms[i].get_decoded_password()) + "\nhint: " + str(selected_game.rooms[i].get_decoded_hint()),
+						bold= True,
+						background_color = button_color,
+						)
 			self.room_grid.add_widget(button)
 
 
@@ -207,17 +204,7 @@ class GUI(App):
 		# update debug panel
 		self.debug_panel.clear_widgets()
 		selected_game = self.game_history.queue[self.game_history.selected_index]
-
-		if self.selected_agent_num == None:
-			image = self.blank_image
-			txt = ""
-		else:
-			selected_agent = selected_game.game_agents[self.selected_agent_num]
-			image = selected_agent.image
-			txt = 'location = ' + str(selected_agent.location) + '\nis_speaking = ' + str(selected_agent.is_speaking) + '\nmessage = ' + str(selected_agent.message) + '\ninput_password = ' + str(selected_agent.input_password)
-
-		self.selected_agent_display = Image(source=image)
-		self.debug_panel.add_widget(self.selected_agent_display)
+		txt = "current turn = " + str(self.game_history.current_turn) + "\nselected turn = " + str(self.game_history.get_selected_turn())
 		self.debug_display = Label(
 						text= txt,
 						font_size= 18,
