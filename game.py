@@ -4,20 +4,23 @@ import random
 import copy
 
 class Game():
-	def __init__(self, total_num_agents, num_agents_per_game, num_rooms, password_len, message_len):
+	def __init__(self, total_num_agents, num_agents_per_game, num_rooms, password_len, message_len,
+				batch_size, gamma, eps_start, eps_end, eps_decay, target_update, memory_size, lr, num_eps):
 		self.total_num_agents = total_num_agents
 		self.num_agents_per_game = num_agents_per_game
 		self.num_rooms = num_rooms
 		self.password_len = password_len
 		self.message_len = message_len
-		self.all_agents = self.initialize_agents()
+		self.all_agents = self.initialize_agents(batch_size, gamma, eps_start, eps_end, eps_decay, target_update, memory_size, lr, num_eps)
 		self.game_agents = self.all_agents[0:self.num_agents_per_game]
 		self.rooms = self.initialize_rooms()
 		self.rooms_update_occupants()
+		# self.is_done = 0
 
 
 	def start_game(self):
 		# this function must be called from main.py because the resulting Game object must be passed as an argument for the GameHistory class.
+		
 		shuffled = copy.deepcopy(self.all_agents)
 		random.shuffle(shuffled)
 		self.game_agents = shuffled[0:self.num_agents_per_game]
@@ -30,9 +33,9 @@ class Game():
 		for i in range(len(self.game_agents)):
 			self.game_agents[i].set_order_in_game(i)
 
-		# for each agent, reset order in memory
+		# for each agent, reset order in memory and set current step to 0
 		for a in self.game_agents:
-			a.reset_memory_order()
+			a.reset_agent()
 
 		# lock up each agent in each room
 		for i in range(len(self.game_agents)):
@@ -42,12 +45,14 @@ class Game():
 		self.print_game_initialization()
 
 
-	def initialize_agents(self):
+	def initialize_agents(self, batch_size, gamma, eps_start, eps_end, eps_decay, target_update, memory_size, lr, num_eps):
 		# define agents
 		agents = []
 		for i in range(self.total_num_agents):
-			agent = Agent(number=i, name="robot", message_len=self.message_len, 
-						location=0, password_len=self.password_len, num_agents=self.num_agents_per_game)
+			agent = Agent(number=i, name="robot", message_len=self.message_len, location=0, 
+						password_len=self.password_len, num_agents=self.num_agents_per_game,
+						batch_size=batch_size, gamma=gamma, eps_start=eps_start, eps_end=eps_end, eps_decay=eps_decay, 
+						target_update=target_update, memory_size=memory_size, lr=lr, num_eps=num_eps)
 			agents.append(agent)
 		shuffled = copy.deepcopy(agents)
 		random.shuffle(shuffled)
@@ -113,12 +118,8 @@ class Game():
 				for o in self.game_agents:
 					o.receive_message(a, a.message)
 
-		self.agents_observe_room_hints()
-
-		for r in self.rooms:
-			r.unlock(r.check_password_match())
-			
 		self.rooms_update_occupants()
+		self.agents_observe_room_hints()
 
 
 	def print_game_initialization(self):

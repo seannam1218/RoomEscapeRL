@@ -16,6 +16,10 @@ class Room:
 
 	def unlock(self, boolean):
 		self.unlocked = boolean
+		if boolean:
+			return 1
+		else: 
+			return 0
 
 
 	def get_decoded_password(self):
@@ -30,12 +34,7 @@ class Room:
 
 
 	def check_password_match(self):
-		print(self.occupants[0].input_password, self.password)
-		if self.occupants[0].input_password == self.password:
-			print('unlocked!')
-			return True
-		else:
-			return False
+		return self.occupants[0].input_password == self.password
 
 
 	def identify(self):

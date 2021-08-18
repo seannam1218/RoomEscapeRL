@@ -13,6 +13,7 @@ from functools import partial ##import partial, wich allows to apply arguments t
 import copy
 
 NEW_GAME_BTN_COLOR = '#007fff'
+TRAINING_BTN_COLOR = '#30f722'
 OTHER_BTN_COLOR = '#FF6600'
 LOCKED_COLOR = '#52349E'
 UNLOCKED_COLOR = '#00FA9E'
@@ -27,6 +28,8 @@ class GUI(App):
 		self.game_history = game_history
 		self.selected_agent_num = None
 		self.blank_image = 'images/blank.png'
+		self.is_training = True
+		self.is_over = 0
 
 
 	def build(self):
@@ -56,7 +59,7 @@ class GUI(App):
 		self.left_window.add_widget(self.button_space)
 
 		# memory display
-		self.create_debug_display()
+		self.debug_panel = BoxLayout(orientation='vertical')
 		self.left_window.add_widget(self.debug_panel)
 
 		### create a space to represent rooms and its occupants
@@ -70,7 +73,7 @@ class GUI(App):
 
 
 	def create_button_space(self):
-		self.button_space = GridLayout(cols=3, size_hint_y=0.2)
+		self.button_space = GridLayout(cols=4, size_hint_y=0.2)
 
 		# new game button
 		self.button_new_game = Button(
@@ -81,6 +84,16 @@ class GUI(App):
 					)
 		self.button_space.add_widget(self.button_new_game)
 		self.button_new_game.bind(on_press=self.new_game)
+
+		# training button
+		self.button_train = Button(
+					text= "Start Training",
+					bold= True,
+					background_color = TRAINING_BTN_COLOR,
+					background_normal = ""
+					)
+		self.button_space.add_widget(self.button_train)
+		self.button_train.bind(on_press=self.train)
 
 		# previous button
 		self.button_previous = Button(
@@ -105,31 +118,64 @@ class GUI(App):
 
 	def new_game(self, instance):
 		print("new game!")
+		self.is_over = 0
 		self.game.start_game()
 		self.game_history.refresh_history(self.game)
 		self.selected_agent_num = None
 		self.update_ui()
+
+
+	def train(self, instance):
+		print("training")
+		# while is_training:
+			# get action with state and policy_net (this should be done in the agent class)
+
+			# get reward 
+
+			# get next state
+
+			# push resulting experience to each agent's memory (this should be done in the agent class)
 
 	
 	def previous_turn(self, instance):
 		print("previous turn...")
 		self.game_history.add_to_selected_index(-1)
 		self.update_ui()
-		print(str(self.game_history.current_turn), str(self.game_history.selected_index))
 
 
 	def next_turn(self, instance):
+		if self.is_over:
+			print("restarting...")
+			self.new_game(None)
+			return
+
 		print("proceeding................")
 		if self.game_history.selected_index == -1:
 			self.game.proceed_turn()
+			self.check_room_unlocks()
 			self.update_game_history()
 		else:
 			self.game_history.add_to_selected_index(1)
 		self.update_ui()
 
 
-	def create_debug_display(self):
-		self.debug_panel = BoxLayout(orientation='vertical')
+	def check_room_unlocks(self):
+		# iterate through rooms and see if the occupants matched the password. 
+		# Update agents on unlocked status of the rooms
+		# Game is over if all rooms are unlocked
+		total = 0
+		for r in self.game.rooms:
+			total += r.unlock(r.check_password_match())
+			r.occupants[0].set_room_unlocked = r.check_password_match()
+		if total == self.game.num_rooms:
+			self.game_over()
+			print("game over!")
+
+
+	def game_over(self):
+		self.is_over = 1
+		for a in self.game.game_agents:
+			a.done = 1
 
 
 	def create_game_window(self):
@@ -204,7 +250,7 @@ class GUI(App):
 		# update debug panel
 		self.debug_panel.clear_widgets()
 		selected_game = self.game_history.queue[self.game_history.selected_index]
-		txt = "current turn = " + str(self.game_history.current_turn) + "\nselected turn = " + str(self.game_history.get_selected_turn())
+		txt = "current turn = " + str(self.game_history.current_turn) + "\nselected turn = " + str(self.game_history.get_selected_turn()) + "\ngameover = " + str(self.is_over)
 		self.debug_display = Label(
 						text= txt,
 						font_size= 18,
