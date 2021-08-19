@@ -13,13 +13,6 @@ gui = GUI(game=game, game_history=game_history)
 
 gui.run()
 
-# episode_durations = []
-# for episode in range(100):
-# 	for a in game.game_agents:
-# 		# get initial state: message_memory, room_hint, input_password, room_unlocked, 
-		
-
-# 		for step in count():
 
 
 

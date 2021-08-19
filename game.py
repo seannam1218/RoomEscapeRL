@@ -15,12 +15,10 @@ class Game():
 		self.game_agents = self.all_agents[0:self.num_agents_per_game]
 		self.rooms = self.initialize_rooms()
 		self.rooms_update_occupants()
-		# self.is_done = 0
 
 
 	def start_game(self):
 		# this function must be called from main.py because the resulting Game object must be passed as an argument for the GameHistory class.
-		
 		shuffled = copy.deepcopy(self.all_agents)
 		random.shuffle(shuffled)
 		self.game_agents = shuffled[0:self.num_agents_per_game]

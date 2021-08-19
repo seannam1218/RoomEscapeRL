@@ -95,7 +95,12 @@ class Agent:
 		# message_memory, room_hint, input_password, room_unlocked, 
 		state = {"message_memory": self.message_memory, "room_hint": self.room_hint, "input_password": self.input_password, "room_unlocked": self.room_unlocked}
 		return state
-		
+
+	
+	def compose_state_list(self):
+		state = self.message_memory + self.room_hint + self.input_password + self.room_unlocked
+		return state
+
 
 	def get_action_nn(self, state):
 		rate = self.strategy.get_exploration_rate(self.current_step)

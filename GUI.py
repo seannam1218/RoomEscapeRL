@@ -28,7 +28,6 @@ class GUI(App):
 		self.game_history = game_history
 		self.selected_agent_num = None
 		self.blank_image = 'images/blank.png'
-		self.is_training = True
 		self.is_over = 0
 
 
@@ -127,14 +126,18 @@ class GUI(App):
 
 	def train(self, instance):
 		print("training")
-		# while is_training:
-			# get action with state and policy_net (this should be done in the agent class)
-
-			# get reward 
-
-			# get next state
-
-			# push resulting experience to each agent's memory (this should be done in the agent class)
+		
+		for episode in range(100):
+			# get each agent to store its current state
+			self.new_game(None)
+			while self.is_over == 0:
+				self.next_turn(None)
+				# get each agent to store its action, reward, next_state
+				# for each agent: agent.memory.push(Experience(state, action, next_state, reward)) 
+				# for each agent: state = next_state
+				# if self.is_over == 1: each agent gets win reward
+				
+				# if memory.can_provide_sample(batch_size): finish this
 
 	
 	def previous_turn(self, instance):
@@ -144,11 +147,6 @@ class GUI(App):
 
 
 	def next_turn(self, instance):
-		if self.is_over:
-			print("restarting...")
-			self.new_game(None)
-			return
-
 		print("proceeding................")
 		if self.game_history.selected_index == -1:
 			self.game.proceed_turn()
