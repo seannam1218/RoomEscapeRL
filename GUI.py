@@ -9,6 +9,7 @@ from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.graphics import Rectangle
+from Plotter import Plotter
 from functools import partial ##import partial, wich allows to apply arguments to bind functions
 import copy
 
@@ -22,13 +23,15 @@ INACTIVITY_COLOR = '#E4DCD2'
 
 
 class GUI(App):
-	def __init__(self, game, game_history, **kwargs):
+	def __init__(self, game, game_history, max_turns, moving_avg_period, **kwargs):
 		super(GUI, self).__init__(**kwargs)
 		self.game = game
 		self.game_history = game_history
 		self.selected_agent_num = None
 		self.blank_image = 'images/blank.png'
 		self.is_over = 0
+		self.max_turns = max_turns
+		self.plotter = Plotter(moving_avg_period)
 
 
 	def build(self):
@@ -128,17 +131,23 @@ class GUI(App):
 		print("training")
 		
 		for episode in range(100):
-			# get each agent to store its current state
 			self.new_game(None)
-			while self.is_over == 0:
-				self.next_turn(None)
-				# get each agent to store its action, reward, next_state
-				# for each agent: agent.memory.push(Experience(state, action, next_state, reward)) 
-				# for each agent: state = next_state
-				# if self.is_over == 1: each agent gets win reward
+			n = 0
+			# loop through each turn
+			for turn in range(self.max_turns):
+				if self.is_over == 1:
+					reward = 50			# TODO: calculate reward
+					for a in self.game.game_agents:
+						a.train_agent(reward)
+					break
+					# self.plotter.plot(n)
+				else:
+					for a in self.game.game_agents:
+						self.next_turn(None)
+						reward = 0 		# TODO: calculate reward
+						a.train_agent(reward)
+				n += 1
 				
-				# if memory.can_provide_sample(batch_size): finish this
-
 	
 	def previous_turn(self, instance):
 		print("previous turn...")
@@ -147,6 +156,9 @@ class GUI(App):
 
 
 	def next_turn(self, instance):
+		if self.is_over == 1:
+			print("game is over. start a new game!")
+			return
 		print("proceeding................")
 		if self.game_history.selected_index == -1:
 			self.game.proceed_turn()

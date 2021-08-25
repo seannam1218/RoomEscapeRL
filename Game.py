@@ -1,5 +1,5 @@
-from room import Room
-from agent import Agent
+from Room import Room
+from Agent import Agent
 import random
 import copy
 
@@ -29,17 +29,14 @@ class Game():
 		for a in self.all_agents:
 			a.set_order_in_game(None)
 		for i in range(len(self.game_agents)):
-			self.game_agents[i].set_order_in_game(i)
-
-		# for each agent, reset order in memory and set current step to 0
-		for a in self.game_agents:
+			a = self.game_agents[i]
+			a.set_order_in_game(i)		# for each agent, reset order in memory and set current step to 0
+			a.location = i				# lock up each agent in each room
+			a.set_room_hint(self.rooms[a.location].hint)			
 			a.reset_agent()
+			# a.compose_state_list 		# update each agents' state observation
 
-		# lock up each agent in each room
-		for i in range(len(self.game_agents)):
-			self.game_agents[i].location = i
 		self.initialize_game()
-
 		self.print_game_initialization()
 
 
@@ -81,7 +78,7 @@ class Game():
 			rand_room = [0] * self.num_rooms
 			rand_room[shuffled_room_list[j]] = 1
 			rand_room_index = rand_room.index(1)
-			hint = (rand_room, rooms[rand_room_index].password)
+			hint = [rand_room, rooms[rand_room_index].password]
 			rooms[j].set_hint(hint)
 
 		return rooms
@@ -93,9 +90,10 @@ class Game():
 
 
 	def agents_observe_room_hints(self):
-		for agent in self.game_agents:
-			agent.set_room_hint(self.rooms[agent.location].hint)
-
+		for a in self.game_agents:
+			a.set_room_hint(self.rooms[a.location].hint)
+			a.update_state()
+			
 
 	def rooms_update_occupants(self): #not optimal
 		for r in self.rooms:
@@ -108,8 +106,8 @@ class Game():
 
 	def proceed_turn(self):
 		for a in self.game_agents:
-			action = a.get_action()
-			a.apply_action(action)
+			action = a.get_action_nn()
+			a.take_action(action)
 
 			# other agents receive message
 			if action["send_message"] is True:

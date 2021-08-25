@@ -15,7 +15,7 @@ class Plotter():
 		plt.clf()
 		plt.plot(values)
 		plt.plot(self.get_moving_average(self.moving_avg_period, values))
-		plt.pause(5)
+		plt.pause(1)
 		
 
 	def get_moving_average(self, period, values):
@@ -27,6 +27,3 @@ class Plotter():
 		else:
 			moving_avg = torch.zeros(len(values))
 			return moving_avg.numpy()
-
-plotter = Plotter(100)
-plotter.plot(np.random.rand(300))

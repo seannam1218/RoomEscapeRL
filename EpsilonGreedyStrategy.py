@@ -8,5 +8,5 @@ class EpsilonGreedyStrategy():
 
 	def get_exploration_rate(self, current_step):
 		rate = self.end + (self.start - self.end) * math.exp(-1. * current_step * self.decay)
-		print('exploration rate = ' + str(rate))
+		# print('exploration rate = ' + str(rate))
 		return rate
