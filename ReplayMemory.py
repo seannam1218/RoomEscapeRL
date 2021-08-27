@@ -17,5 +17,4 @@ class ReplayMemory():
 		return random.sample(self.memory, batch_size)
 	
 	def can_provide_sample(self, batch_size):
-		print("memory stored: ", len(self.memory))
 		return len(self.memory) >= batch_size

@@ -5,7 +5,6 @@ from DQN import DQN
 import torch.optim as optim
 import torch
 from collections import namedtuple
-# import numpy as np
 from pandas.core.common import flatten
 
 
@@ -114,7 +113,6 @@ class Agent:
 			# print('exploration:', str(self.action))
 		else:
 			with torch.no_grad():
-				#TODO: fix self.state to a torch tensor
 				exploit = self.policy_net(self.state).argmax().to(self.device) # exploit
 				self.action = torch.unsqueeze(exploit, dim=0)
 				# print('poicy_net:', str(self.action))
@@ -130,8 +128,8 @@ class Agent:
 			action.update({"message" : message})
 		elif self.action.tolist()[0] == 1:	# input password
 			self.is_speaking = False
-			input_password = [0]*4 # TODO: this is for debugging. Change the 4 to something else. Same with randint line below
-			input_password[random.randint(0,3)] = 1
+			input_password = [0]*len(self.input_password)
+			input_password[random.randint(0,len(self.input_password)-1)] = 1
 			action.update({"input_password" : input_password})
 
 		return action

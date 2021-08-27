@@ -19,12 +19,10 @@ class DQN(nn.Module):
 
 	def forward(self, t): 
 		# where t is the tensor that is being passed through the NN
-		# print("forward: ", t)
 		t = t.flatten(start_dim=0).float()
 		t = F.relu(self.fc1(t))
 		t = F.relu(self.fc2(t))
 		t = self.out(t)
-		# print("out: ", t)
 		return t
 
 

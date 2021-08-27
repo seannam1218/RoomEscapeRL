@@ -9,7 +9,7 @@ game.start_game()
 
 game_history = GameHistory(game=game, max_length=10)
 
-gui = GUI(game=game, game_history=game_history, max_turns=500, moving_avg_period=40)
+gui = GUI(game=game, game_history=game_history, max_turns=500, moving_avg_period=5)
 
 gui.run()
 

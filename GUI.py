@@ -130,24 +130,27 @@ class GUI(App):
 		
 		for episode in range(10):
 			self.new_game(None)
-			n = 0
 			# loop through each turn
-			selected_game = self.game_history.queue[self.game_history.selected_index]
 			for turn in range(self.max_turns):
-				if selected_game.is_over == 1:
+				# game over!
+				if self.game.is_over == 1:
 					reward = 50			# TODO: calculate reward
 					for a in self.game.game_agents:
 						a.train_agent(reward)
+					self.plotter.add_data(episode, turn)
 					break
-					# self.plotter.plot(n)
+
+				# proceed to next turn
 				else:
 					for a in self.game.game_agents:
+						print("episode:", episode, ", turn:", turn)
 						self.next_turn(None)
 						reward = 0 		# TODO: calculate reward
 						a.train_agent(reward)
-				n += 1
-				
+						
+		# self.plotter.show_plot()
 	
+
 	def previous_turn(self, instance):
 		print("previous turn...")
 		self.game_history.add_to_selected_index(-1)
