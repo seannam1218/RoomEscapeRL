@@ -29,7 +29,6 @@ class GUI(App):
 		self.game_history = game_history
 		self.selected_agent_num = None
 		self.blank_image = 'images/blank.png'
-		self.is_over = 0
 		self.max_turns = max_turns
 		self.plotter = Plotter(moving_avg_period)
 
@@ -120,7 +119,6 @@ class GUI(App):
 
 	def new_game(self, instance):
 		print("new game!")
-		self.is_over = 0
 		self.game.start_game()
 		self.game_history.refresh_history(self.game)
 		self.selected_agent_num = None
@@ -130,12 +128,13 @@ class GUI(App):
 	def train(self, instance):
 		print("training")
 		
-		for episode in range(100):
+		for episode in range(10):
 			self.new_game(None)
 			n = 0
 			# loop through each turn
+			selected_game = self.game_history.queue[self.game_history.selected_index]
 			for turn in range(self.max_turns):
-				if self.is_over == 1:
+				if selected_game.is_over == 1:
 					reward = 50			# TODO: calculate reward
 					for a in self.game.game_agents:
 						a.train_agent(reward)
@@ -156,7 +155,8 @@ class GUI(App):
 
 
 	def next_turn(self, instance):
-		if self.is_over == 1:
+		selected_game = self.game_history.queue[self.game_history.selected_index]
+		if selected_game.is_over == 1:
 			print("game is over. start a new game!")
 			return
 		print("proceeding................")
@@ -183,7 +183,7 @@ class GUI(App):
 
 
 	def game_over(self):
-		self.is_over = 1
+		self.game.is_over = 1
 		for a in self.game.game_agents:
 			a.done = 1
 
@@ -260,7 +260,7 @@ class GUI(App):
 		# update debug panel
 		self.debug_panel.clear_widgets()
 		selected_game = self.game_history.queue[self.game_history.selected_index]
-		txt = "current turn = " + str(self.game_history.current_turn) + "\nselected turn = " + str(self.game_history.get_selected_turn()) + "\ngameover = " + str(self.is_over)
+		txt = "current turn = " + str(self.game_history.current_turn) + "\nselected turn = " + str(self.game_history.get_selected_turn()) + "\ngameover = " + str(selected_game.is_over)
 		self.debug_display = Label(
 						text= txt,
 						font_size= 18,

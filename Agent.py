@@ -107,32 +107,33 @@ class Agent:
 		rate = self.strategy.get_exploration_rate(self.current_step)
 		self.current_step += 1
 
+		# exploration vs exploitation
 		if rate > random.random():
-			action = random.randrange(self.num_actions) # explore
-			self.action = torch.tensor([action], device=self.device)  # supposed to be torch.tensor, but torch.as_tensor might work
+			explore = random.randrange(self.num_actions) # explore
+			self.action = torch.tensor([explore], device=self.device)  # supposed to be torch.tensor, but torch.as_tensor might work
 			# print('exploration:', str(self.action))
 		else:
 			with torch.no_grad():
 				#TODO: fix self.state to a torch tensor
-				action = self.policy_net(self.state).argmax().to(self.device) # exploit
-				self.action = torch.unsqueeze(action, dim=0)
+				exploit = self.policy_net(self.state).argmax().to(self.device) # exploit
+				self.action = torch.unsqueeze(exploit, dim=0)
 				# print('poicy_net:', str(self.action))
 
-		# from previous
-		action = {"send_message": None, "message": None, "input_password": None}
-		action.update({"send_message" : random.choice([True, False])})
-		if action['send_message'] is True:
+		# save action to the agent instant
+		action = {"message": self.message, "input_password": self.input_password}
+		if self.action.tolist()[0] == 0:	# speak
 			self.is_speaking = True
 			self.msg_index += 1
 			self.msg_index = self.msg_index % 3
 			message = [0]*len(self.message)
 			message[self.msg_index] = 1
 			action.update({"message" : message})
-		else:
+		elif self.action.tolist()[0] == 1:	# input password
 			self.is_speaking = False
 			input_password = [0]*4 # TODO: this is for debugging. Change the 4 to something else. Same with randint line below
 			input_password[random.randint(0,3)] = 1
 			action.update({"input_password" : input_password})
+
 		return action
 
 
@@ -142,11 +143,16 @@ class Agent:
 		# reward = 0 		# TODO: compute reward
 		# return torch.tensor([reward], device=self.device)  # supposed to be torch.tensor, but torch.as_tensor might work
 
-		#from previous
-		if action["send_message"] is True:
+		if self.action.tolist()[0] == 0:	# speak
 			self.message = action["message"]
-		else:
+		else: 
 			self.input_password = action["input_password"]
+		
+		#from previous
+		# if action["send_message"] is True:
+		# 	self.message = action["message"]
+		# else:
+		# 	self.input_password = action["input_password"]
 
 
 	def receive_message(self, sender, received_message):
@@ -166,7 +172,6 @@ class Agent:
 		self.prev_state = None
 		self.state = None
 		self.current_step = 0
-		# self.update_state()
 
 
 Experience = namedtuple(

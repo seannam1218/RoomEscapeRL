@@ -15,13 +15,15 @@ class Game():
 		self.game_agents = self.all_agents[0:self.num_agents_per_game]
 		self.rooms = self.initialize_rooms()
 		self.rooms_update_occupants()
+		self.is_over = 0
+
 
 
 	def start_game(self):
 		# this function must be called from main.py because the resulting Game object must be passed as an argument for the GameHistory class.
-		shuffled = copy.deepcopy(self.all_agents)
-		random.shuffle(shuffled)
-		self.game_agents = shuffled[0:self.num_agents_per_game]
+		self.is_over = 0
+		random.shuffle(self.all_agents)
+		self.game_agents = self.all_agents[0:self.num_agents_per_game]
 		self.rooms = self.initialize_rooms()
 		self.rooms_update_occupants()
 		
@@ -34,7 +36,6 @@ class Game():
 			a.location = i				# lock up each agent in each room
 			a.set_room_hint(self.rooms[a.location].hint)			
 			a.reset_agent()
-			# a.compose_state_list 		# update each agents' state observation
 
 		self.initialize_game()
 		self.print_game_initialization()
@@ -49,9 +50,8 @@ class Game():
 						batch_size=batch_size, gamma=gamma, eps_start=eps_start, eps_end=eps_end, eps_decay=eps_decay, 
 						target_update=target_update, memory_size=memory_size, lr=lr, num_eps=num_eps)
 			agents.append(agent)
-		shuffled = copy.deepcopy(agents)
-		random.shuffle(shuffled)
-		return shuffled
+		random.shuffle(agents)
+		return agents
 
 
 	def initialize_rooms(self):
@@ -110,7 +110,7 @@ class Game():
 			a.take_action(action)
 
 			# other agents receive message
-			if action["send_message"] is True:
+			if a.action.tolist()[0] == 0: 	# speak
 				for o in self.game_agents:
 					o.receive_message(a, a.message)
 
